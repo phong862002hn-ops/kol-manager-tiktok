@@ -76,11 +76,6 @@ function LoginForm() {
               {loading ? "Đang đăng nhập..." : "Đăng nhập"}
             </Button>
           </form>
-          <div className="mt-6 text-xs text-gray-500 border-t pt-4">
-            <p className="font-medium mb-1">Tài khoản demo:</p>
-            <p>Manager: admin@shop.local / admin123</p>
-            <p>Staff: staff@shop.local / staff123</p>
-          </div>
         </CardContent>
       </Card>
     </div>
