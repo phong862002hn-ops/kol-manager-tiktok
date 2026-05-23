@@ -1,0 +1,82 @@
+# Docker Compose: production deploy trên máy local/server, expose ra LAN
+# Usage:
+#   docker compose --env-file .env.docker up -d --build
+#   docker compose logs -f app
+#   docker compose exec app sh
+#   docker compose down                  # stop (data postgres giữ trong volume)
+#   docker compose down -v               # stop + xoá data
+#
+# Truy cập: http://<your-machine>.<your-tailnet>.ts.net (qua Tailscale)
+# Backup: tự động daily, lưu ./backups/ trên host
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kol-manager-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: kol_manager
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kol_manager"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kol-manager-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/kol_manager?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?Vui lòng set NEXTAUTH_SECRET trong .env.docker}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NODE_ENV: production
+    ports:
+      # Bind loopback - chỉ máy host truy cập được trực tiếp.
+      # Tailscale Serve sẽ proxy từ tailnet vào port này.
+      - "${HOST_BIND_IP:-127.0.0.1}:3000:3000"
+
+  # Backup tự động: chạy pg_dump mỗi ngày lúc 02:00 (giờ container).
+  # File lưu vào ./backups/ trên host, giữ 30 ngày gần nhất.
+  backup:
+    image: postgres:16-alpine
+    container_name: kol-manager-backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATABASE: kol_manager
+      BACKUP_KEEP_DAYS: "30"
+      BACKUP_CRON: "0 2 * * *"   # 02:00 hàng ngày
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ["sh", "-c"]
+    command: |
+      "
+      apk add --no-cache busybox-suid > /dev/null;
+      chmod +x /usr/local/bin/backup.sh;
+      echo \"$$BACKUP_CRON /usr/local/bin/backup.sh\" > /etc/crontabs/root;
+      echo '[backup] Cron schedule: '$$BACKUP_CRON;
+      echo '[backup] Chạy backup đầu tiên ngay khi start...';
+      /usr/local/bin/backup.sh || true;
+      echo '[backup] Watch cron...';
+      exec crond -f -d 8
+      "
+
+volumes:
+  postgres-data:
+    name: kol-manager-postgres-data

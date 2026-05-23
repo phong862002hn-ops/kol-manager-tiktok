@@ -1,0 +1,383 @@
+// KOL Manager — schema theo plan section 4
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STAFF)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  proposedCosts  CastCost[]    @relation("Proposer")
+  approvedCosts  CastCost[]    @relation("Approver")
+  campaigns      Campaign[]
+  managedKols    CampaignKol[] @relation("KolStaff")
+  createdKols    CampaignKol[] @relation("KolCreator")
+  createdProducts Product[]    @relation("ProductCreator")
+  createdSentOrders SentOrder[] @relation("SentOrderCreator")
+  uploadedImports ExcelImport[] @relation("ImportUploader")
+  auditLogs      AuditLog[]
+  comments       KolComment[]
+  notifications  Notification[]
+}
+
+enum Role {
+  STAFF
+  MANAGER
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  budget       Int            @default(0)
+  targetKoc    Int            @default(0)
+  targetVideos Int            @default(0)
+  status       CampaignStatus @default(ACTIVE)
+
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdById String
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  kols       CampaignKol[]
+  products   Product[]
+  sentOrders SentOrder[]
+
+  @@index([deletedAt])
+}
+
+enum CampaignStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+model CampaignKol {
+  id         String   @id @default(cuid())
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+
+  username String
+  tag      String?
+  status   KolStatus @default(NEW_CONTACT)
+
+  zalo     String?
+  email    String?
+  facebook String?
+  ig       String?
+
+  staff   User?   @relation("KolStaff", fields: [staffId], references: [id])
+  staffId String?
+
+  createdBy   User?    @relation("KolCreator", fields: [createdById], references: [id])
+  createdById String?
+
+  castCost CastCost?
+  comments KolComment[]
+
+  note      String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@unique([campaignId, username])
+  @@index([staffId])
+  @@index([createdById])
+  @@index([deletedAt])
+}
+
+enum KolStatus {
+  PAUSED
+  NEW_CONTACT
+  CONTACTING
+  NEGOTIATING
+  BOOKED
+}
+
+model CastCost {
+  id            String      @id @default(cuid())
+  campaignKol   CampaignKol @relation(fields: [campaignKolId], references: [id], onDelete: Cascade)
+  campaignKolId String      @unique
+
+  amount   Int
+  costType CostType
+
+  status CastStatus @default(PENDING)
+
+  proposedBy   User     @relation("Proposer", fields: [proposedById], references: [id])
+  proposedById String
+  proposedAt   DateTime @default(now())
+
+  approvedBy   User?     @relation("Approver", fields: [approvedById], references: [id])
+  approvedById String?
+  approvedAt   DateTime?
+  rejectReason String?
+
+  paidAmount Int     @default(0)
+  note       String?
+}
+
+enum CostType {
+  PER_VIDEO
+  LUMP_SUM
+}
+
+enum CastStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Product {
+  id         String   @id @default(cuid())
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+
+  tiktokId String
+  name     String
+  sku      String?
+  note     String?
+
+  createdBy   User?     @relation("ProductCreator", fields: [createdById], references: [id])
+  createdById String?
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
+
+  @@unique([campaignId, tiktokId])
+  @@index([createdById])
+  @@index([deletedAt])
+}
+
+model SentOrder {
+  id         String   @id @default(cuid())
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+
+  sentDate    DateTime
+  kolUsername String
+
+  channel    SentChannel
+  sampleType SampleType
+
+  tiktokOrderId String?
+  products      Json
+
+  staffId      String?
+  status       ShipStatus @default(NOT_SENT)
+  trackingCode String?
+
+  createdBy   User?     @relation("SentOrderCreator", fields: [createdById], references: [id])
+  createdById String?
+
+  note      String?
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([createdById])
+  @@index([deletedAt])
+}
+
+enum SentChannel {
+  TIKTOK
+  EXTERNAL
+}
+
+enum SampleType {
+  GIFT
+  LOAN
+}
+
+enum ShipStatus {
+  NOT_SENT
+  SHIPPING
+  DELIVERED
+  RETURNED
+}
+
+model ExcelImport {
+  id         String   @id @default(cuid())
+  fileName   String
+  uploadedBy String
+  uploadedAt DateTime @default(now())
+  rowCount   Int
+
+  uploader      User?     @relation("ImportUploader", fields: [uploaderId], references: [id])
+  uploaderId    String?
+  deletedAt     DateTime?
+
+  orders TiktokOrder[]
+
+  @@index([uploaderId])
+  @@index([deletedAt])
+}
+
+model TiktokOrder {
+  id       String      @id @default(cuid())
+  import   ExcelImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  importId String
+
+  orderId       String
+  productId     String
+  productName   String
+  sku           String?
+  skuId         String?
+  merchantSku   String?
+  price         Int
+  paymentAmount Int
+  quantity      Int     @default(1)
+  paymentMethod String?
+  orderStatus   String
+
+  creatorUsername String
+  contentType     String?
+  contentId       String?
+
+  commissionRate    Float?
+  commissionBase    Int?
+  commissionPayment Int?
+  actualCommission  Int?
+
+  createdTime   DateTime?
+  paidTime      DateTime?
+  shippedTime   DateTime?
+  completedTime DateTime?
+
+  rawData Json
+
+  @@index([creatorUsername])
+  @@index([contentId])
+  @@index([orderId])
+  @@index([orderStatus])
+}
+
+model VideoLink {
+  id        String   @id @default(cuid())
+  contentId String   @unique
+  url       String
+  note      String?
+  addedBy   String
+  addedAt   DateTime @default(now())
+}
+
+// Audit log — ghi lại mọi thao tác CREATE/UPDATE/DELETE/RESTORE
+// để truy vết khi data bị thay đổi/xóa
+model AuditLog {
+  id         String   @id @default(cuid())
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId     String?
+  userEmail  String   // snapshot — phòng khi user bị xóa
+  userName   String
+  action     AuditAction
+  entity     String   // "Campaign" | "CampaignKol" | "Product" | "SentOrder" | "VideoLink" | "ExcelImport" | "User" | "CastCost"
+  entityId   String
+  entityName String?  // tên human-readable (vd "Mùa Hè 2026" hoặc "@kolmau1")
+  beforeJson Json?    // state trước khi đổi (cho UPDATE, DELETE)
+  afterJson  Json?    // state sau (cho CREATE, UPDATE, RESTORE)
+  createdAt  DateTime @default(now())
+
+  @@index([entity, entityId, createdAt])
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([createdAt])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
+}
+
+// Tag dùng chung cross-campaign (vd "VIP", "Affiliate", "Livestream", "KOL tệ")
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#94a3b8") // hex, default slate
+  createdAt DateTime @default(now())
+
+  kols KolTag[]
+}
+
+// Gắn tag cho KOL theo username (lowercase, cross-campaign).
+// KOL xuất hiện ở nhiều campaign đều dùng chung tag.
+model KolTag {
+  id       String @id @default(cuid())
+  username String // chuẩn hoá lowercase
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId    String
+
+  createdAt DateTime @default(now())
+
+  @@unique([username, tagId])
+  @@index([username])
+  @@index([tagId])
+}
+
+// Notification cho user về events liên quan
+//   - COMMENT_NEW: có comment mới về KOL mình phụ trách
+//   - CAST_PENDING: có cast cần duyệt (gửi cho Manager)
+//   - CAST_APPROVED / CAST_REJECTED: cast của mình đề xuất được xử lý
+//   - SENT_ORDER_STATUS: đơn gửi mẫu đổi trạng thái
+model Notification {
+  id          String   @id @default(cuid())
+  recipient   User     @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String
+  type        String   // COMMENT_NEW | CAST_PENDING | CAST_APPROVED | CAST_REJECTED | SENT_ORDER_STATUS
+  title       String
+  body        String?
+  link        String?  // path để click vào sẽ điều hướng
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([recipientId, isRead, createdAt])
+  @@index([createdAt])
+}
+
+// Profile TikTok của 1 KOL (per username, cross-campaign).
+// Lưu các thông tin về tài khoản KOL không thay đổi giữa campaigns.
+model KolProfile {
+  id            String   @id @default(cuid())
+  username      String   @unique // chuẩn hoá lowercase
+  followerCount Int?     // tổng số follower trên TikTok
+  malePercent   Float?   // tỉ lệ nam follow (0-100). Nữ = 100 - male
+  note          String?  // ghi chú thêm về account TikTok
+  updatedAt     DateTime @updatedAt
+  updatedBy     String?  // tên user vừa cập nhật
+
+  @@index([username])
+}
+
+// Comment polymorphic: thuộc về 1 trong 2 scope
+//   - per-campaign (campaignKolId set)
+//   - cross-campaign per username (kolUsername set)
+model KolComment {
+  id      String @id @default(cuid())
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+  content String
+
+  // Scope 1: bình luận về KOL trong 1 campaign cụ thể
+  campaignKol   CampaignKol? @relation(fields: [campaignKolId], references: [id], onDelete: Cascade)
+  campaignKolId String?
+
+  // Scope 2: bình luận về KOL (theo username, cross-campaign)
+  kolUsername String?
+
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([campaignKolId, createdAt])
+  @@index([kolUsername, createdAt])
+  @@index([userId])
+}
