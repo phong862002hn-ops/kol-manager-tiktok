@@ -48,16 +48,23 @@ const FIELD_LABELS: Record<string, string> = {
   rejectReason: "Lý do từ chối",
   approvedAt: "Thời gian duyệt",
   approvedById: "Người duyệt",
+  proposedAt: "Thời gian đề xuất",
+  paidAmount: "Đã thanh toán",
+  castCost: "Chi phí cast",
 
   // Sent order
   channel: "Kênh gửi",
   sampleType: "Loại hàng mẫu",
   shipStatus: "Trạng thái giao",
+  trackingCode: "Mã vận đơn",
   trackingNumber: "Mã vận đơn",
   productId: "Sản phẩm",
   quantity: "Số lượng",
   shippedAt: "Thời gian gửi",
   deliveredAt: "Thời gian nhận",
+  sentDate: "Ngày gửi",
+  kolUsername: "KOL",
+  products: "Sản phẩm",
 
   // Product
   price: "Giá",
@@ -85,14 +92,23 @@ const FIELD_VALUE_MAP: Record<string, Record<string, string>> = {
   role: { MANAGER: "Quản lý", STAFF: "Nhân viên" },
 };
 
-// Fields to hide from diff (system/meta or unstable IDs)
+// Fields to hide from diff (system/meta)
 const HIDDEN_FIELDS = new Set([
   "id",
   "createdAt",
   "updatedAt",
   "deletedAt",
-  "campaignKolId",
 ]);
+
+// Auto-hide any field name ending with "Id" (foreign keys with CUID values
+// like staffId, kolId, productId, createdById, approvedById, campaignId, ...).
+// Those values look like code to end users and are duplicated elsewhere
+// (entity title, người làm metadata).
+function isHidden(key: string): boolean {
+  if (HIDDEN_FIELDS.has(key)) return true;
+  if (key.length > 2 && key.endsWith("Id")) return true;
+  return false;
+}
 
 const DATE_FIELDS = new Set([
   "startDate",
@@ -172,6 +188,27 @@ export function formatFieldValue(key: string, value: unknown): string {
       .join(", ");
   }
 
+  // castCost: { amount, status, costType, ... } → "10.000.000 ₫ · Chờ duyệt · Mỗi video"
+  if (
+    key === "castCost" &&
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value)
+  ) {
+    const cc = value as Record<string, unknown>;
+    const parts: string[] = [];
+    if (typeof cc.amount === "number") {
+      parts.push(new Intl.NumberFormat("vi-VN").format(cc.amount) + " ₫");
+    }
+    if (typeof cc.status === "string" && CAST_STATUS_LABELS[cc.status]) {
+      parts.push(CAST_STATUS_LABELS[cc.status]);
+    }
+    if (typeof cc.costType === "string" && COST_TYPE_LABELS[cc.costType]) {
+      parts.push(COST_TYPE_LABELS[cc.costType]);
+    }
+    return parts.length > 0 ? parts.join(" · ") : "Có chi phí cast";
+  }
+
   // Array of primitives → comma-joined
   if (Array.isArray(value)) {
     if (value.length === 0) return "—";
@@ -181,7 +218,12 @@ export function formatFieldValue(key: string, value: unknown): string {
     return `${value.length} mục`;
   }
 
-  // Other nested objects — show "Dữ liệu chi tiết" placeholder rather than raw JSON
+  // CUID-like string (Prisma cuid: starts with c + 24 chars) → ẩn
+  if (typeof value === "string" && /^c[a-z0-9]{24}$/.test(value)) {
+    return "—";
+  }
+
+  // Other nested objects — show generic placeholder rather than raw JSON
   if (typeof value === "object") {
     return "Dữ liệu chi tiết";
   }
@@ -209,7 +251,7 @@ export function computeDiff(
   const keys = Array.from(new Set([...Object.keys(b), ...Object.keys(a)]));
   const out: DiffEntry[] = [];
   for (const k of keys) {
-    if (HIDDEN_FIELDS.has(k)) continue;
+    if (isHidden(k)) continue;
     const beforeV = b[k];
     const afterV = a[k];
     if (jsonEqual(beforeV, afterV)) continue;
@@ -230,7 +272,7 @@ export function listFields(
     (data && typeof data === "object" ? (data as Record<string, unknown>) : {}) ||
     {};
   return Object.keys(d)
-    .filter((k) => !HIDDEN_FIELDS.has(k))
+    .filter((k) => !isHidden(k))
     .filter((k) => {
       const v = d[k];
       return v !== null && v !== undefined && v !== "";
