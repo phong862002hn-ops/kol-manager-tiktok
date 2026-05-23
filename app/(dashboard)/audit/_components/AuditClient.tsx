@@ -267,18 +267,8 @@ function DetailDialog({
   log: Log | null;
   onClose: () => void;
 }) {
-  const [showRaw, setShowRaw] = useState(false);
-
   return (
-    <Dialog
-      open={!!log}
-      onOpenChange={(o) => {
-        if (!o) {
-          onClose();
-          setShowRaw(false);
-        }
-      }}
-    >
+    <Dialog open={!!log} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
@@ -296,43 +286,7 @@ function DetailDialog({
               <Kv label="Loại" value={ENTITY_LABELS[log.entity] ?? log.entity} />
               <Kv label="Hành động" value={ACTION_LABELS[log.action] ?? log.action} />
             </div>
-
             <FriendlyDiff log={log} />
-
-            <div className="pt-2 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => setShowRaw((v) => !v)}
-                className="text-xs text-gray-500 hover:text-gray-700 underline cursor-pointer"
-              >
-                {showRaw ? "Ẩn dữ liệu kỹ thuật" : "Xem dữ liệu kỹ thuật (JSON)"}
-              </button>
-              {showRaw && (
-                <div className="mt-3 space-y-3">
-                  <Kv label="Entity ID" value={<code className="text-xs">{log.entityId}</code>} />
-                  {log.beforeJson != null && (
-                    <div>
-                      <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
-                        Trước khi đổi
-                      </div>
-                      <pre className="bg-red-50 border border-red-200 rounded p-3 text-xs overflow-x-auto max-h-72">
-                        {JSON.stringify(log.beforeJson, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                  {log.afterJson != null && (
-                    <div>
-                      <div className="text-xs font-semibold text-gray-500 uppercase mb-1">
-                        Sau khi đổi
-                      </div>
-                      <pre className="bg-green-50 border border-green-200 rounded p-3 text-xs overflow-x-auto max-h-72">
-                        {JSON.stringify(log.afterJson, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         )}
       </DialogContent>

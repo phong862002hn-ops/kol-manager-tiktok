@@ -8,6 +8,15 @@ import {
   SENT_CHANNEL_LABELS,
 } from "@/lib/constants";
 
+// status field is used by multiple entities (CampaignKol/Campaign/CastCost/SentOrder)
+// — merge all possible enum values to translate any of them.
+const STATUS_LABELS_ALL: Record<string, string> = {
+  ...KOL_STATUS_LABELS,
+  ...CAMPAIGN_STATUS_LABELS,
+  ...CAST_STATUS_LABELS,
+  ...SHIP_STATUS_LABELS,
+};
+
 const FIELD_LABELS: Record<string, string> = {
   // Common
   name: "Tên",
@@ -68,11 +77,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 const FIELD_VALUE_MAP: Record<string, Record<string, string>> = {
-  status: {
-    ...KOL_STATUS_LABELS,
-    ...CAMPAIGN_STATUS_LABELS,
-    ...CAST_STATUS_LABELS,
-  },
+  status: STATUS_LABELS_ALL,
   costType: COST_TYPE_LABELS,
   shipStatus: SHIP_STATUS_LABELS,
   sampleType: SAMPLE_TYPE_LABELS,
@@ -96,6 +101,7 @@ const DATE_FIELDS = new Set([
   "shippedAt",
   "deliveredAt",
   "proposedAt",
+  "sentDate",
 ]);
 
 const MONEY_FIELDS = new Set(["amount", "budget", "price"]);
@@ -149,9 +155,35 @@ export function formatFieldValue(key: string, value: unknown): string {
   // Boolean
   if (typeof value === "boolean") return value ? "Có" : "Không";
 
-  // Object/array — fallback
+  // products: [{ quantity, productId, productName }]  → readable list
+  if (
+    key === "products" &&
+    Array.isArray(value) &&
+    value.length > 0 &&
+    typeof value[0] === "object"
+  ) {
+    return (value as Array<Record<string, unknown>>)
+      .map((p) => {
+        const qty = p.quantity ?? "";
+        const name = p.productName ?? p.productId ?? "";
+        return qty ? `${qty} × ${name}` : String(name);
+      })
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  // Array of primitives → comma-joined
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "—";
+    if (value.every((v) => typeof v !== "object" || v === null)) {
+      return value.join(", ");
+    }
+    return `${value.length} mục`;
+  }
+
+  // Other nested objects — show "Dữ liệu chi tiết" placeholder rather than raw JSON
   if (typeof value === "object") {
-    return JSON.stringify(value);
+    return "Dữ liệu chi tiết";
   }
 
   return String(value);
