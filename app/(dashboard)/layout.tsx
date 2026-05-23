@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { TopBar } from "@/components/layout/TopBar";
 import { CommandPalette } from "./_components/CommandPalette";
 
 export default async function DashboardLayout({
@@ -26,7 +27,10 @@ export default async function DashboardLayout({
         userName={session.user.name ?? ""}
         userEmail={session.user.email ?? ""}
       />
-      <main className="flex-1 overflow-x-hidden">{children}</main>
+      <main className="flex-1 min-w-0 overflow-x-hidden">
+        <TopBar />
+        {children}
+      </main>
       <CommandPalette />
     </div>
   );

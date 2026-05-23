@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateTime, formatNumber } from "@/lib/format";
 import { toast } from "sonner";
@@ -87,7 +88,7 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
           dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
         }`}
       >
-        <div className="text-4xl mb-2">📤</div>
+        <UploadCloud className="h-10 w-10 mx-auto mb-2 text-muted-foreground" strokeWidth={1.5} />
         <p className="text-gray-700">
           Kéo file (nhiều file cũng được) vào đây hoặc{" "}
           <button

@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -295,11 +296,12 @@ export function KolListClient({
                       size="sm"
                       onClick={() => setCommentTarget(r)}
                       title="Bình luận về KOL này trong campaign"
-                      className={r.commentCount > 0 ? "text-blue-600" : ""}
+                      aria-label="Bình luận"
+                      className={r.commentCount > 0 ? "text-primary" : ""}
                     >
-                      💬
+                      <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.75} />
                       {r.commentCount > 0 && (
-                        <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-blue-500 text-white text-[10px] font-semibold">
+                        <span className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold tabular-nums">
                           {r.commentCount}
                         </span>
                       )}

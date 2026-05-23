@@ -1,15 +1,24 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Send,
+  ShoppingBag,
+  Video,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const TABS = [
-  { slug: "", label: "📊 Tổng quan" },
-  { slug: "products", label: "📦 Sản phẩm" },
-  { slug: "kols", label: "👥 KOL" },
-  { slug: "sent", label: "📤 Gửi đơn" },
-  { slug: "orders", label: "📥 Đơn về" },
-  { slug: "videos", label: "🎬 Video" },
+const TABS: { slug: string; label: string; Icon: LucideIcon }[] = [
+  { slug: "", label: "Tổng quan", Icon: LayoutDashboard },
+  { slug: "products", label: "Sản phẩm", Icon: Package },
+  { slug: "kols", label: "KOL", Icon: Users },
+  { slug: "sent", label: "Gửi đơn", Icon: Send },
+  { slug: "orders", label: "Đơn về", Icon: ShoppingBag },
+  { slug: "videos", label: "Video", Icon: Video },
 ];
 
 export function CampaignTabs({ campaignId }: { campaignId: string }) {
@@ -17,7 +26,7 @@ export function CampaignTabs({ campaignId }: { campaignId: string }) {
   const base = `/campaigns/${campaignId}`;
 
   return (
-    <div className="flex gap-1 mt-5 -mb-px overflow-x-auto">
+    <div className="flex gap-0.5 -mb-px overflow-x-auto border-b border-border">
       {TABS.map((tab) => {
         const href = tab.slug ? `${base}/${tab.slug}` : base;
         const active = tab.slug
@@ -28,12 +37,14 @@ export function CampaignTabs({ campaignId }: { campaignId: string }) {
             key={tab.slug}
             href={href}
             className={cn(
-              "px-4 py-2.5 text-sm border-b-2 whitespace-nowrap transition-colors",
+              "inline-flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] border-b-2 -mb-px whitespace-nowrap cursor-pointer transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-t-sm",
               active
-                ? "border-blue-600 text-blue-700 font-medium"
-                : "border-transparent text-gray-600 hover:text-gray-900"
+                ? "border-primary text-foreground font-semibold"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
+            <tab.Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
             {tab.label}
           </Link>
         );

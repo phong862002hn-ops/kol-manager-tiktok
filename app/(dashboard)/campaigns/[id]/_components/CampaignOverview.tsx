@@ -3,15 +3,15 @@ import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { fetcher } from "@/lib/fetcher";
 import { formatNumber, formatVnd } from "@/lib/format";
-import { KOL_STATUS_LABELS } from "@/lib/constants";
 import { DateRangeFilter } from "@/components/shared/DateRangeFilter";
 import { StaffFilter } from "@/components/shared/StaffFilter";
-import {
-  CountPieChart,
-  CurrencyPieChart,
-  GmvBarChart,
-  TimeLineChart,
-} from "./OverviewCharts";
+import { KpiCard } from "@/components/shared/KpiCard";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import { Sparkline } from "@/components/shared/Sparkline";
+import { HorizontalBarChart } from "@/components/shared/HorizontalBarChart";
+import { Progress } from "@/components/shared/Progress";
+import { Avatar } from "@/components/shared/Avatar";
+import { SemanticBadge } from "@/components/shared/SemanticBadge";
 
 type Overview = {
   totalBookedKols: number;
@@ -50,278 +50,277 @@ export function CampaignOverview({ campaignId }: { campaignId: string }) {
   );
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-[1400px] mx-auto">
-      {/* Filter sticky top */}
-      <div className="sticky top-0 z-10 -mx-6 lg:-mx-8 px-6 lg:px-8 py-3 bg-gray-50/95 backdrop-blur border-b border-gray-200 flex items-center gap-3 flex-wrap">
-        <DateRangeFilter />
-        <StaffFilter />
+    <div>
+      {/* Sticky filter bar */}
+      <div className="sticky top-[57px] z-10 border-b border-border bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+        <div className="px-6 py-3 flex items-center gap-3 flex-wrap">
+          <DateRangeFilter />
+          <StaffFilter />
+        </div>
       </div>
 
-      {isLoading || !data ? (
-        <Skeleton />
-      ) : (
-        <>
-          {/* ═══════ NHÓM 1 ═══════ */}
-          <Group
-            badge="Tổng quan chiến dịch"
-            badgeColor="bg-blue-600"
-            subtitle="Toàn bộ tình hình booking, video và các KPI chính."
-          >
+      <div className="px-6 py-5 space-y-7">
+        {isLoading || !data ? (
+          <SkeletonBlocks />
+        ) : (
+          <>
+            {/* ── Hero: 2 big progress cards ───────────────────── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <ProgressCard
-                icon="📦"
-                title="Tổng KOC đã booking"
+              <BigProgress
+                label="KOC ĐÃ BOOKING"
                 current={data.totalBookedKols}
                 target={data.targetKocs}
                 unit="KOC"
-                color="bg-blue-500"
+                color="hsl(var(--primary))"
               />
-              <ProgressCard
-                icon="🎬"
-                title="Tiến độ KOC làm video"
+              <BigProgress
+                label="VIDEO CÓ ĐƠN VỀ"
                 current={data.totalVideosWithOrders}
                 target={data.targetVideos}
                 unit="Video"
-                color="bg-cyan-500"
+                color="hsl(var(--warning))"
+                slowIfBehind
               />
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
-              <StatCard icon="🔍" label="Tìm kiếm KOC" value={formatNumber(data.searchedKocs)} sub="KOC" />
-              <StatCard icon="💰" label="Tổng COD" value={formatVnd(data.totalCod)} />
-              <StatCard icon="✅" label="Đã duyệt (booking)" value={formatNumber(data.approvedCount)} sub="KOC" />
-              <StatCard icon="💵" label="Doanh thu video" value={formatVnd(data.videoRevenue)} />
-            </div>
-          </Group>
 
-          {/* ═══════ NHÓM 2 ═══════ */}
-          <Group
-            badge="Theo dõi tiến độ chi tiết"
-            badgeColor="bg-indigo-600"
-            subtitle="Theo dõi tiến độ booking theo sản phẩm, nhân sự và nhóm KOC."
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <SubCard title="Quản lý tiến độ theo sản phẩm">
-                {data.productProgress.length === 0 ? (
-                  <Empty />
-                ) : (
-                  <div className="space-y-3">
-                    {data.productProgress.map((p) => (
-                      <ProgressLine
-                        key={p.productId}
-                        label={p.name}
-                        current={p.booked}
-                        meta={`${formatNumber(p.orderCount)} đơn`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </SubCard>
-              <SubCard title="Quản lý tiến độ theo nhân sự">
-                {data.staffProgress.length === 0 ? (
-                  <Empty />
-                ) : (
-                  <div className="space-y-2">
-                    {data.staffProgress.map((s) => (
-                      <div
-                        key={s.staffId}
-                        className="flex justify-between items-baseline text-sm border-b border-gray-100 last:border-0 py-2"
-                      >
-                        <span className="text-gray-900 font-medium">{s.name}</span>
-                        <span className="text-xs text-gray-500">
-                          {formatNumber(s.kocCount)} KOC · {formatNumber(s.videoCount)} video
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </SubCard>
-              <SubCard title="Quản lý tiến độ theo nhóm KOC">
-                {data.tagProgress.length === 0 ? (
-                  <Empty />
-                ) : (
-                  <div className="space-y-3">
-                    {data.tagProgress.map((t) => (
-                      <ProgressLine
-                        key={t.tag}
-                        label={t.tag}
-                        current={t.count}
-                        meta={`${formatNumber(t.count)} KOC`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </SubCard>
+            {/* ── KPI strip ────────────────────────────────────── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <KpiCard
+                label="Tìm kiếm KOC"
+                value={formatNumber(data.searchedKocs)}
+                sub="KOC scan trong khoảng đang chọn"
+              />
+              <KpiCard
+                label="Tổng COD"
+                value={formatVnd(data.totalCod)}
+                sub={`trên ${formatNumber(data.approvedCount)} đơn duyệt`}
+              />
+              <KpiCard
+                label="KOC đã duyệt"
+                value={formatNumber(data.approvedCount)}
+                sub="trong campaign này"
+              />
+              <KpiCard
+                label="Doanh thu video"
+                value={formatVnd(data.videoRevenue)}
+                sub={`trên ${formatNumber(data.totalVideosWithOrders)} video có đơn`}
+              />
             </div>
-          </Group>
 
-          {/* ═══════ NHÓM 3 ═══════ */}
-          <Group
-            badge="Vận hành liên hệ và hợp tác"
-            badgeColor="bg-purple-600"
-            subtitle="Kiểm soát pipeline làm việc theo trạng thái và năng suất của từng nhân sự."
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <SubCard title="Quản lý trạng thái liên hệ">
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(data.contactStatus).map(([s, n]) => (
-                    <div
-                      key={s}
-                      className="border border-gray-200 rounded-md p-3 text-center hover:bg-purple-50 transition"
-                    >
-                      <div className="text-[11px] text-gray-500">
-                        {KOL_STATUS_LABELS[s] ?? s}
-                      </div>
-                      <div className="text-2xl font-semibold text-gray-900 mt-1">{n}</div>
-                    </div>
-                  ))}
-                </div>
-              </SubCard>
-              <SubCard title="Quản lý trạng thái hợp tác">
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <MiniBox label="Gửi mẫu" value={data.collaborationStatus.sampleSent} />
-                  <MiniBox
-                    label="Đã hoàn thành"
-                    value={data.collaborationStatus.completed}
-                    color="text-green-700"
+            {/* ── Tiến độ theo chiều ───────────────────────────── */}
+            <section>
+              <SectionHeader
+                title="Tiến độ theo chiều"
+                sub="Theo sản phẩm, nhân sự và nhóm KOC"
+              />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <SubCard title="Theo sản phẩm">
+                  <HorizontalBarChart
+                    data={data.productProgress.slice(0, 6).map((p) => ({
+                      name: p.name,
+                      value: p.booked,
+                      label: `${formatNumber(p.booked)} KOC`,
+                    }))}
                   />
-                </div>
-                <div className="border-t pt-3">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Năng suất theo nhân sự
-                  </div>
-                  {data.staffPerformance.length === 0 ? (
+                </SubCard>
+                <SubCard title="Theo nhân sự">
+                  {data.staffProgress.length === 0 ? (
                     <Empty />
                   ) : (
-                    <div className="space-y-2">
-                      {data.staffPerformance.map((s) => (
-                        <div key={s.staffId}>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span className="text-gray-700">{s.name}</span>
-                            <span className="text-gray-500">
-                              {s.done}/{s.total} · {s.percent}%
+                    <div>
+                      {data.staffProgress.map((s, i, arr) => (
+                        <div
+                          key={s.staffId}
+                          className={`flex items-center justify-between py-2 text-[13px] ${
+                            i === arr.length - 1 ? "" : "border-b border-border"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <Avatar name={s.name} size={22} />
+                            <span className="text-foreground truncate">
+                              {s.name}
                             </span>
                           </div>
-                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-purple-500 transition-all"
-                              style={{ width: `${s.percent}%` }}
-                            />
+                          <div className="text-xs text-muted-foreground tabular-nums shrink-0 pl-2">
+                            <span className="text-foreground font-medium">
+                              {formatNumber(s.kocCount)}
+                            </span>{" "}
+                            KOC ·{" "}
+                            <span className="text-foreground font-medium">
+                              {formatNumber(s.videoCount)}
+                            </span>{" "}
+                            video
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
-              </SubCard>
-            </div>
-          </Group>
+                </SubCard>
+                <SubCard title="Theo nhóm KOC">
+                  <HorizontalBarChart
+                    data={data.tagProgress.slice(0, 6).map((t) => ({
+                      name: t.tag,
+                      value: t.count,
+                      label: `${formatNumber(t.count)} KOC`,
+                    }))}
+                  />
+                </SubCard>
+              </div>
+            </section>
 
-          {/* ═══════ NHÓM 4 ═══════ */}
-          <Group
-            badge="Hàng mẫu và hiệu suất nhanh"
-            badgeColor="bg-emerald-600"
-            subtitle="Tổng hợp chi phí hàng mẫu/cast và doanh thu theo các chiều phân tích."
-          >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <SubCard title="Quản lý hàng mẫu / cast" className="bg-emerald-50/30">
-                <div className="divide-y divide-emerald-100/60 text-sm">
-                  <KVRow label="KOC đã gửi mẫu" value={formatNumber(data.sampleManagement.kocSent)} />
-                  <KVRow label="Tổng chi phí cast" value={formatVnd(data.sampleManagement.totalCost)} />
-                  <KVRow
+            {/* ── Chi phí cast / hàng mẫu ───────────────────────── */}
+            <section>
+              <SectionHeader
+                title="Chi phí cast · hàng mẫu"
+                sub="Tổng quan đầu tư cho từng KOC"
+              />
+              <div className="rounded-lg border border-border bg-card p-6">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-7">
+                  <StatColumn
+                    label="KOC đã gửi mẫu"
+                    value={formatNumber(data.sampleManagement.kocSent)}
+                  />
+                  <StatColumn
+                    label="Tổng chi phí cast"
+                    value={formatVnd(data.sampleManagement.totalCost)}
+                    divider
+                  />
+                  <StatColumn
                     label="Đã thanh toán"
                     value={formatVnd(data.sampleManagement.paid)}
-                    valueClass="text-green-700 font-semibold"
+                    sub={pctOf(data.sampleManagement.paid, data.sampleManagement.totalCost)}
+                    valueColor="text-success"
+                    divider
                   />
-                  <KVRow
+                  <StatColumn
                     label="Chưa thanh toán"
                     value={formatVnd(data.sampleManagement.unpaid)}
-                    valueClass="text-red-700 font-semibold"
+                    sub={pctOf(data.sampleManagement.unpaid, data.sampleManagement.totalCost)}
+                    valueColor="text-destructive"
+                    divider
                   />
                 </div>
-              </SubCard>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <RankBox title="Doanh thu theo nhóm KOC" rows={data.revenueByTag.slice(0, 5).map((r) => ({ name: r.tag, value: r.revenue, percent: r.percent }))} />
-                <RankBox title="Doanh thu theo sản phẩm" rows={data.revenueByProduct.slice(0, 5).map((r) => ({ name: r.name, value: r.revenue, percent: r.percent }))} />
-                <RankBox title="Doanh thu theo nhân sự" rows={data.revenueByStaff.slice(0, 5).map((r) => ({ name: r.name, value: r.revenue, percent: r.percent }))} />
               </div>
-            </div>
-          </Group>
+            </section>
 
-          {/* ═══════ NHÓM 5 ═══════ */}
-          <Group
-            badge="Phân tích mở rộng"
-            badgeColor="bg-slate-800"
-            subtitle="Các biểu đồ tổng hợp theo ngày và theo tỉ trọng để đối chiếu dữ liệu."
-          >
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-gray-700 border-l-4 border-blue-300 pl-3">
-                Phân bổ nguồn lực — cơ cấu video, doanh thu, tag và sản phẩm
+            {/* ── Xu hướng theo thời gian ───────────────────────── */}
+            <section>
+              <SectionHeader
+                title="Xu hướng theo thời gian"
+                sub={`${data.kocSearchByDate.length} ngày gần nhất`}
+              />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <TrendCard
+                  title="KOC tìm kiếm / ngày"
+                  total={data.kocSearchByDate.reduce((a, b) => a + b.count, 0)}
+                  data={data.kocSearchByDate.map((d) => d.count)}
+                  color="hsl(var(--primary))"
+                />
+                <TrendCard
+                  title="Video đăng / ngày"
+                  total={data.videoByDate.reduce((a, b) => a + b.count, 0)}
+                  data={data.videoByDate.map((d) => d.count)}
+                  color="hsl(var(--success))"
+                />
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <SubCard title="Tỉ trọng video theo nhân sự">
-                  <CountPieChart
-                    data={data.videoRatioByStaff.map((v) => ({ name: v.name, value: v.count }))}
-                  />
-                </SubCard>
-                <SubCard title="Tỉ trọng doanh thu video theo nhân sự">
-                  <CurrencyPieChart
-                    data={data.videoRevenueRatioByStaff.map((v) => ({ name: v.name, value: v.revenue }))}
-                  />
-                </SubCard>
-                <SubCard title="Tỉ trọng KOC theo nhãn (tag)">
-                  <CountPieChart
-                    data={data.kocRatioByTag.map((v) => ({ name: v.tag, value: v.count }))}
-                  />
-                </SubCard>
-                <SubCard title="GMV theo sản phẩm (Top 8)">
-                  <GmvBarChart data={data.gmvByProduct} />
-                </SubCard>
-              </div>
+            </section>
 
-              <div className="text-sm font-medium text-gray-700 border-l-4 border-blue-300 pl-3 mt-6">
-                Xu hướng theo thời gian — 21 ngày gần nhất
+            {/* ── Phân tích doanh thu theo chiều ───────────────── */}
+            <section>
+              <SectionHeader
+                title="Doanh thu theo chiều"
+                sub="Top 5 mỗi nhóm"
+              />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                <RankCard
+                  title="Theo nhóm KOC"
+                  rows={data.revenueByTag.slice(0, 5).map((r) => ({
+                    name: r.tag,
+                    value: r.revenue,
+                    percent: r.percent,
+                  }))}
+                />
+                <RankCard
+                  title="Theo sản phẩm"
+                  rows={data.revenueByProduct.slice(0, 5).map((r) => ({
+                    name: r.name,
+                    value: r.revenue,
+                    percent: r.percent,
+                  }))}
+                />
+                <RankCard
+                  title="Theo nhân sự"
+                  rows={data.revenueByStaff.slice(0, 5).map((r) => ({
+                    name: r.name,
+                    value: r.revenue,
+                    percent: r.percent,
+                  }))}
+                />
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <SubCard title="Tìm kiếm KOC theo ngày">
-                  <TimeLineChart data={data.kocSearchByDate} color="#2563eb" />
-                </SubCard>
-                <SubCard title="Video KOC theo ngày">
-                  <TimeLineChart data={data.videoByDate} color="#8b5cf6" />
-                </SubCard>
-              </div>
-            </div>
-          </Group>
-        </>
-      )}
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
-// ═══════ Sub-components ═══════
-
-function Group({
-  badge,
-  badgeColor,
-  subtitle,
-  children,
+function BigProgress({
+  label,
+  current,
+  target,
+  unit,
+  color,
+  slowIfBehind,
 }: {
-  badge: string;
-  badgeColor: string;
-  subtitle: string;
-  children: React.ReactNode;
+  label: string;
+  current: number;
+  target: number;
+  unit: string;
+  color: string;
+  slowIfBehind?: boolean;
 }) {
+  const pct = target > 0 ? Math.round((current / target) * 100) : 0;
+  const remain = Math.max(0, target - current);
+  const behind = slowIfBehind && pct < 30;
   return (
-    <section>
-      <div className="flex items-start gap-3 mb-4 flex-wrap">
-        <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold text-white ${badgeColor}`}
-        >
-          {badge}
-        </span>
-        <span className="text-xs text-gray-500 mt-1.5">{subtitle}</span>
+    <div className="rounded-lg border border-border bg-card p-5">
+      <div className="flex items-start justify-between gap-3 mb-3.5">
+        <div>
+          <div className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground mb-1">
+            {label}
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-[32px] font-semibold tabular-nums tracking-tight leading-none">
+              {formatNumber(current)}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              / {target > 0 ? formatNumber(target) : "—"} {unit}
+            </span>
+          </div>
+        </div>
+        {target > 0 && (
+          <SemanticBadge
+            variant={behind ? "warning" : current >= target ? "success" : "primary"}
+            dot
+          >
+            {behind ? "Chậm tiến độ" : `${pct}% mục tiêu`}
+          </SemanticBadge>
+        )}
       </div>
-      {children}
-    </section>
+      <Progress value={current} max={target || 1} color={color} />
+      <div className="flex justify-between text-[11.5px] text-muted-foreground mt-2">
+        <span>
+          Còn lại{" "}
+          <span className="text-foreground font-medium tabular-nums">
+            {formatNumber(remain)} {unit}
+          </span>
+        </span>
+        {target > 0 && (
+          <span className="tabular-nums">{pct}% mục tiêu</span>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -335,8 +334,10 @@ function SubCard({
   className?: string;
 }) {
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}>
-      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+    <div
+      className={`rounded-lg border border-border bg-card p-4 ${className}`}
+    >
+      <div className="text-[12.5px] font-semibold text-foreground mb-3">
         {title}
       </div>
       {children}
@@ -344,136 +345,70 @@ function SubCard({
   );
 }
 
-function ProgressCard({
-  icon,
-  title,
-  current,
-  target,
-  unit,
-  color,
-}: {
-  icon: string;
-  title: string;
-  current: number;
-  target: number;
-  unit: string;
-  color: string;
-}) {
-  const pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : 0;
-  const remain = Math.max(0, target - current);
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-xl">{icon}</span>
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          {title}
-        </span>
-      </div>
-      <div className="text-3xl font-bold text-gray-900">{pct}%</div>
-      <div className="flex justify-between text-xs text-gray-500 mt-2 mb-1.5">
-        <span>Hiện tại {formatNumber(current)}</span>
-        <span>Mục tiêu {target > 0 ? formatNumber(target) : "—"}</span>
-      </div>
-      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full ${color} transition-all`}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-      <div className="text-xs text-gray-500 mt-2">
-        Còn lại: <span className="font-medium text-gray-700">{formatNumber(remain)} {unit}</span>
-      </div>
-    </div>
-  );
-}
-
-function StatCard({
-  icon,
+function StatColumn({
   label,
   value,
   sub,
+  valueColor,
+  divider,
 }: {
-  icon: string;
   label: string;
   value: string;
   sub?: string;
+  valueColor?: string;
+  divider?: boolean;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-base">{icon}</span>
-        <span className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-          {label}
-        </span>
+    <div className={divider ? "lg:border-l lg:border-border lg:pl-7" : ""}>
+      <div className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground mb-2">
+        {label}
       </div>
-      <div className="text-xl font-semibold text-gray-900">{value}</div>
-      {sub && <div className="text-[11px] text-gray-400 mt-0.5">{sub}</div>}
+      <div
+        className={`text-2xl font-semibold tabular-nums tracking-tight ${
+          valueColor ?? "text-foreground"
+        }`}
+      >
+        {value}
+      </div>
+      {sub && (
+        <div className="mt-1 text-[11.5px] text-muted-foreground tabular-nums">
+          {sub}
+        </div>
+      )}
     </div>
   );
 }
 
-function ProgressLine({
-  label,
-  current,
-  meta,
-}: {
-  label: string;
-  current: number;
-  meta: string;
-}) {
-  return (
-    <div>
-      <div className="flex justify-between text-xs mb-1">
-        <span className="text-gray-700 font-medium line-clamp-1">{label}</span>
-        <span className="text-gray-500 whitespace-nowrap pl-2">{meta}</span>
-      </div>
-      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-indigo-500 transition-all"
-          style={{ width: `${Math.min(100, current * 8)}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function MiniBox({
-  label,
-  value,
+function TrendCard({
+  title,
+  total,
+  data,
   color,
 }: {
-  label: string;
-  value: number;
-  color?: string;
+  title: string;
+  total: number;
+  data: number[];
+  color: string;
 }) {
   return (
-    <div className="border border-gray-200 rounded-md p-3 text-center">
-      <div className="text-[11px] text-gray-500">{label}</div>
-      <div className={`text-2xl font-semibold mt-1 ${color ?? "text-gray-900"}`}>
-        {formatNumber(value)}
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[12.5px] font-semibold text-foreground">
+          {title}
+        </div>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          tổng{" "}
+          <span className="text-foreground font-medium">
+            {formatNumber(total)}
+          </span>
+        </span>
       </div>
+      <Sparkline data={data} color={color} height={100} showAxis={false} />
     </div>
   );
 }
 
-function KVRow({
-  label,
-  value,
-  valueClass,
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex justify-between items-baseline py-2">
-      <span className="text-gray-600">{label}</span>
-      <span className={valueClass ?? "text-gray-900 font-medium"}>{value}</span>
-    </div>
-  );
-}
-
-function RankBox({
+function RankCard({
   title,
   rows,
 }: {
@@ -481,19 +416,27 @@ function RankBox({
   rows: { name: string; value: number; percent: number }[];
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
-      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+    <div className="rounded-lg border border-border bg-card p-4">
+      <div className="text-[12.5px] font-semibold text-foreground mb-3">
         {title}
       </div>
       {rows.length === 0 ? (
         <Empty />
       ) : (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {rows.map((r, i) => (
-            <div key={i} className="flex justify-between text-xs">
-              <span className="text-gray-700 line-clamp-1 flex-1 pr-2">{r.name}</span>
-              <span className="text-gray-900 font-medium whitespace-nowrap">
-                {formatVnd(r.value)} <span className="text-gray-400">({r.percent}%)</span>
+            <div
+              key={`${r.name}-${i}`}
+              className="flex justify-between gap-2 text-xs"
+            >
+              <span className="text-foreground line-clamp-1 flex-1">
+                {r.name}
+              </span>
+              <span className="text-foreground font-medium tabular-nums shrink-0">
+                {formatVnd(r.value)}{" "}
+                <span className="text-muted-foreground font-normal">
+                  ({r.percent}%)
+                </span>
               </span>
             </div>
           ))}
@@ -504,15 +447,31 @@ function RankBox({
 }
 
 function Empty() {
-  return <div className="text-center py-6 text-xs text-gray-400">📭 Chưa có dữ liệu</div>;
-}
-
-function Skeleton() {
   return (
-    <div className="space-y-4">
-      <div className="h-32 bg-gray-100 rounded-lg animate-pulse" />
-      <div className="h-48 bg-gray-100 rounded-lg animate-pulse" />
-      <div className="h-48 bg-gray-100 rounded-lg animate-pulse" />
+    <div className="text-center py-6 text-xs text-muted-foreground">
+      Chưa có dữ liệu
     </div>
   );
+}
+
+function SkeletonBlocks() {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="h-32 rounded-lg bg-muted animate-pulse" />
+        <div className="h-32 rounded-lg bg-muted animate-pulse" />
+      </div>
+      <div className="grid grid-cols-4 gap-3">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="h-24 rounded-lg bg-muted animate-pulse" />
+        ))}
+      </div>
+      <div className="h-48 rounded-lg bg-muted animate-pulse" />
+    </div>
+  );
+}
+
+function pctOf(part: number, total: number): string {
+  if (total <= 0) return "0%";
+  return `${Math.round((part / total) * 100)}%`;
 }

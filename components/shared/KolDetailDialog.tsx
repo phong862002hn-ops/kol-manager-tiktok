@@ -420,7 +420,7 @@ function ProfileEditor({
       <div className="bg-white border border-gray-200 rounded p-3 space-y-3">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <div className="text-xs text-gray-500">👥 Followers</div>
+            <div className="text-xs text-gray-500">Followers</div>
             <div className="text-lg font-semibold text-gray-900">
               {data?.followerCount != null
                 ? formatNumber(data.followerCount)
@@ -428,7 +428,7 @@ function ProfileEditor({
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">⚧ Tỉ lệ giới tính follower</div>
+            <div className="text-xs text-gray-500">Tỉ lệ giới tính follower</div>
             {data?.malePercent != null ? (
               <div className="mt-1">
                 <div className="flex items-baseline gap-3 text-sm">
