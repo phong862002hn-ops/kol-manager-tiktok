@@ -70,18 +70,18 @@ export function UsersClient({
     <div className="p-8">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Quản lý nhân sự</h1>
-          <p className="text-gray-500 mt-1 text-sm">
+          <h1 className="text-2xl font-semibold text-foreground">Quản lý nhân sự</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             {users.filter((u) => u.active).length} đang hoạt động · {users.filter((u) => !u.active).length} đã vô hiệu hóa
           </p>
         </div>
         <UserFormDialog trigger={<Button>+ Thêm nhân sự</Button>} />
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+      <div className="bg-card border border-border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+          <thead className="bg-muted/50 border-b border-border">
+            <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-3 font-medium">Tên</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -90,39 +90,39 @@ export function UsersClient({
               <th className="px-4 py-3 font-medium text-right">Hành động</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border">
             {users.map((u) => {
               const isMe = u.id === currentUserId;
               return (
                 <tr
                   key={u.id}
-                  className={`hover:bg-gray-50 ${!u.active ? "opacity-50" : ""}`}
+                  className={`hover:bg-muted/60 ${!u.active ? "opacity-50" : ""}`}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {u.name}
                     {isMe && (
-                      <span className="ml-2 text-xs text-blue-600">(bạn)</span>
+                      <span className="ml-2 text-xs text-primary">(bạn)</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{u.email}</td>
                   <td className="px-4 py-3">
                     <StatusBadge
                       label={u.role === "MANAGER" ? "Quản lý" : "Nhân viên"}
                       colorClass={
                         u.role === "MANAGER"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-gray-100 text-gray-700"
+                          ? "bg-primary-soft text-primary"
+                          : "bg-muted text-foreground"
                       }
                     />
                   </td>
                   <td className="px-4 py-3">
                     {u.active ? (
-                      <StatusBadge label="Hoạt động" colorClass="bg-green-100 text-green-700" />
+                      <StatusBadge label="Hoạt động" colorClass="bg-success-soft text-success" />
                     ) : (
-                      <StatusBadge label="Vô hiệu hóa" colorClass="bg-red-100 text-red-700" />
+                      <StatusBadge label="Vô hiệu hóa" colorClass="bg-destructive-soft text-destructive" />
                     )}
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
                     {formatDate(u.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -137,7 +137,7 @@ export function UsersClient({
                     <PasswordResetDialog
                       user={u}
                       trigger={
-                        <Button variant="ghost" size="sm" className="text-blue-600">
+                        <Button variant="ghost" size="sm" className="text-primary">
                           Reset MK
                         </Button>
                       }
@@ -155,7 +155,7 @@ export function UsersClient({
                       size="sm"
                       onClick={() => handleToggleActive(u)}
                       disabled={busy === u.id || isMe}
-                      className={u.active ? "text-red-600 hover:text-red-700" : "text-green-600"}
+                      className={u.active ? "text-destructive hover:text-destructive" : "text-success"}
                     >
                       {u.active ? "Tắt" : "Bật"}
                     </Button>

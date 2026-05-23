@@ -72,7 +72,7 @@ export function KolTagPicker({
           render={
             <button
               type="button"
-              className="text-[11px] text-blue-600 hover:text-blue-700 border border-dashed border-blue-300 rounded-full px-2 py-0.5 hover:bg-blue-50"
+              className="text-[11px] text-primary hover:text-primary border border-dashed border-blue-300 rounded-full px-2 py-0.5 hover:bg-primary-soft"
             >
               + Tag
             </button>
@@ -80,18 +80,18 @@ export function KolTagPicker({
         />
         <PopoverContent className="w-64 p-0">
           <div className="p-2 max-h-64 overflow-y-auto">
-            <div className="text-[11px] text-gray-500 uppercase tracking-wider px-2 py-1">
+            <div className="text-[11px] text-muted-foreground uppercase tracking-wider px-2 py-1">
               Chọn tag
             </div>
             {!allTags ? (
-              <div className="text-xs text-gray-400 text-center py-4">
+              <div className="text-xs text-muted-foreground/70 text-center py-4">
                 Đang tải...
               </div>
             ) : allTags.length === 0 ? (
-              <div className="text-xs text-gray-500 text-center py-4">
+              <div className="text-xs text-muted-foreground text-center py-4">
                 Chưa có tag nào.
                 <br />
-                <a href="/tags" className="text-blue-600 hover:underline">
+                <a href="/tags" className="text-primary hover:underline">
                   Tạo tag mới →
                 </a>
               </div>
@@ -104,8 +104,8 @@ export function KolTagPicker({
                       key={t.id}
                       type="button"
                       onClick={() => toggle(t)}
-                      className={`w-full text-left px-2 py-1.5 rounded text-sm hover:bg-gray-100 flex items-center gap-2 ${
-                        active ? "bg-blue-50" : ""
+                      className={`w-full text-left px-2 py-1.5 rounded text-sm hover:bg-muted flex items-center gap-2 ${
+                        active ? "bg-primary-soft" : ""
                       }`}
                     >
                       <span
@@ -113,7 +113,7 @@ export function KolTagPicker({
                         style={{ backgroundColor: t.color }}
                       />
                       <span className="flex-1">{t.name}</span>
-                      {active && <span className="text-blue-600 text-xs">✓</span>}
+                      {active && <span className="text-primary text-xs">✓</span>}
                     </button>
                   );
                 })}
@@ -123,7 +123,7 @@ export function KolTagPicker({
           <div className="border-t px-2 py-2">
             <a
               href="/tags"
-              className="text-xs text-gray-500 hover:text-blue-600"
+              className="text-xs text-muted-foreground hover:text-primary"
             >
               ⚙ Quản lý tag
             </a>

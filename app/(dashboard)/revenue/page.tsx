@@ -108,8 +108,8 @@ export default async function RevenuePage({
     <div className="p-8 space-y-6">
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Doanh thu KOL</h1>
-          <p className="text-gray-500 mt-1 text-sm">
+          <h1 className="text-2xl font-semibold text-foreground">Doanh thu KOL</h1>
+          <p className="text-muted-foreground mt-1 text-sm">
             {rows.length} KOL có đơn (đã loại đơn hủy)
           </p>
         </div>
@@ -154,7 +154,7 @@ export default async function RevenuePage({
       )}
 
       {rows.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Không có đơn nào trong khoảng thời gian này.
         </div>
       ) : (
@@ -174,12 +174,12 @@ function Kpi({
   tip?: string;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4" title={tip}>
-      <div className="text-[11px] text-gray-500 uppercase tracking-wider flex items-center gap-1">
+    <div className="bg-card border border-border rounded-lg p-4" title={tip}>
+      <div className="text-[11px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
         {label}
-        {tip && <span className="text-gray-400 cursor-help">ⓘ</span>}
+        {tip && <span className="text-muted-foreground/70 cursor-help">ⓘ</span>}
       </div>
-      <div className="text-xl font-semibold text-gray-900 mt-2">{value}</div>
+      <div className="text-xl font-semibold text-foreground mt-2">{value}</div>
     </div>
   );
 }

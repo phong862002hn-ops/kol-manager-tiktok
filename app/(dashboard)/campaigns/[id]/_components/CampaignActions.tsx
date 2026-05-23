@@ -60,7 +60,7 @@ export function CampaignActions({ campaign }: { campaign: CampaignInput }) {
           <DropdownMenuItem
             onClick={handleDelete}
             disabled={deleting}
-            className="text-red-600 focus:text-red-700"
+            className="text-destructive focus:text-destructive"
           >
             Xóa chiến dịch
           </DropdownMenuItem>

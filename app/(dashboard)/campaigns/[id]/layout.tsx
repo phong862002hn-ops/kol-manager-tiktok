@@ -27,18 +27,18 @@ export default async function CampaignLayout({
 
   return (
     <div>
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-card border-b border-border">
         <div className="px-8 pt-6">
           <Link
             href="/campaigns"
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-muted-foreground hover:text-foreground"
           >
             ← Chiến dịch
           </Link>
           <div className="flex items-start justify-between mt-2">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-semibold text-foreground">
                   {campaign.name}
                 </h1>
                 <StatusBadge
@@ -46,7 +46,7 @@ export default async function CampaignLayout({
                   colorClass={CAMPAIGN_STATUS_COLORS[campaign.status]}
                 />
               </div>
-              <div className="flex gap-4 mt-1 text-sm text-gray-500">
+              <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
                 {campaign.startDate && campaign.endDate && (
                   <span>
                     {formatDate(campaign.startDate)} → {formatDate(campaign.endDate)}

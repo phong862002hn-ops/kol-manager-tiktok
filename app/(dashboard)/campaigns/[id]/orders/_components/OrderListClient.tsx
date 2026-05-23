@@ -73,8 +73,8 @@ export function OrderListClient({
             onClick={() => changeFilter(f.v)}
             className={`px-3 py-1.5 rounded border text-xs font-medium ${
               filter === f.v
-                ? "bg-blue-50 border-blue-300 text-blue-700"
-                : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                ? "bg-primary-soft border-primary/40 text-primary"
+                : "bg-card border-border text-muted-foreground hover:bg-muted/60"
             }`}
           >
             {f.l}
@@ -83,15 +83,15 @@ export function OrderListClient({
       </div>
 
       {rows.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Không có đơn nào. Hãy import file Excel TikTok Shop trước.
         </div>
       ) : (
         <>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+          <div className="bg-card border border-border rounded-lg overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-muted/50 border-b border-border">
+                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="px-3 py-3 font-medium">ID đơn</th>
                   <th className="px-3 py-3 font-medium">KOL</th>
                   <th className="px-3 py-3 font-medium">Loại</th>
@@ -103,11 +103,11 @@ export function OrderListClient({
                   <th className="px-3 py-3 font-medium">Thời gian</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {rows.map((r) => {
                   const cancelled = isCancelledOrder(r.orderStatus);
                   return (
-                    <tr key={r.id} className={cancelled ? "text-gray-400" : ""}>
+                    <tr key={r.id} className={cancelled ? "text-muted-foreground/70" : ""}>
                       <td className="px-3 py-2.5 font-mono text-xs">
                         ...{shortOrderId(r.orderId)}
                       </td>
@@ -128,8 +128,8 @@ export function OrderListClient({
                           label={r.orderStatus}
                           colorClass={
                             cancelled
-                              ? "bg-red-100 text-red-700"
-                              : "bg-gray-100 text-gray-700"
+                              ? "bg-destructive-soft text-destructive"
+                              : "bg-muted text-foreground"
                           }
                         />
                       </td>
@@ -145,7 +145,7 @@ export function OrderListClient({
 
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4 text-sm">
-              <div className="text-gray-500">
+              <div className="text-muted-foreground">
                 Trang {page} / {totalPages}
               </div>
               <div className="flex gap-2">
@@ -176,9 +176,9 @@ export function OrderListClient({
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
-      <div className="text-2xl font-semibold text-gray-900 mt-2">{value}</div>
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="text-xs text-muted-foreground uppercase tracking-wider">{label}</div>
+      <div className="text-2xl font-semibold text-foreground mt-2">{value}</div>
     </div>
   );
 }

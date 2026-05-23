@@ -41,10 +41,10 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const ACTION_COLORS: Record<string, string> = {
-  CREATE: "bg-green-100 text-green-700",
-  UPDATE: "bg-blue-100 text-blue-700",
-  DELETE: "bg-red-100 text-red-700",
-  RESTORE: "bg-yellow-100 text-yellow-700",
+  CREATE: "bg-success-soft text-success",
+  UPDATE: "bg-primary-soft text-primary",
+  DELETE: "bg-destructive-soft text-destructive",
+  RESTORE: "bg-warning-soft text-warning",
 };
 
 const ENTITY_LABELS: Record<string, string> = {
@@ -97,8 +97,8 @@ export function AuditClient({
   return (
     <div className="p-8 space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Lịch sử hoạt động</h1>
-        <p className="text-gray-500 mt-1 text-sm">
+        <h1 className="text-2xl font-semibold text-foreground">Lịch sử hoạt động</h1>
+        <p className="text-muted-foreground mt-1 text-sm">
           {total} hoạt động được ghi · Click 1 dòng để xem chi tiết
         </p>
       </div>
@@ -106,7 +106,7 @@ export function AuditClient({
       {/* Filters */}
       <div className="flex gap-2 flex-wrap items-end">
         <div>
-          <Label className="text-xs text-gray-500">Loại</Label>
+          <Label className="text-xs text-muted-foreground">Loại</Label>
           <Select
             value={filterEntity || "__all"}
             onValueChange={(v) => push({ entity: v === "__all" ? "" : v ?? "" })}
@@ -127,7 +127,7 @@ export function AuditClient({
           </Select>
         </div>
         <div>
-          <Label className="text-xs text-gray-500">Hành động</Label>
+          <Label className="text-xs text-muted-foreground">Hành động</Label>
           <Select
             value={filterAction || "__all"}
             onValueChange={(v) => push({ action: v === "__all" ? "" : v ?? "" })}
@@ -148,7 +148,7 @@ export function AuditClient({
           </Select>
         </div>
         <div>
-          <Label className="text-xs text-gray-500">Người làm</Label>
+          <Label className="text-xs text-muted-foreground">Người làm</Label>
           <Select
             value={filterUserId || "__all"}
             onValueChange={(v) => push({ userId: v === "__all" ? "" : v ?? "" })}
@@ -173,10 +173,10 @@ export function AuditClient({
       </div>
 
       {/* Bảng */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+      <div className="bg-card border border-border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+          <thead className="bg-muted/50 border-b border-border">
+            <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-3 font-medium">Thời gian</th>
               <th className="px-4 py-3 font-medium">Người</th>
               <th className="px-4 py-3 font-medium">Hành động</th>
@@ -185,10 +185,10 @@ export function AuditClient({
               <th className="px-4 py-3 font-medium"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border">
             {logs.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
                   Chưa có hoạt động nào khớp filter.
                 </td>
               </tr>
@@ -196,15 +196,15 @@ export function AuditClient({
               logs.map((l) => (
                 <tr
                   key={l.id}
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className="hover:bg-muted/60 cursor-pointer"
                   onClick={() => setDetail(l)}
                 >
-                  <td className="px-4 py-2.5 text-xs text-gray-600">
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground">
                     {formatDateTime(l.createdAt)}
                   </td>
                   <td className="px-4 py-2.5">
-                    <div className="font-medium text-gray-900">{l.userName}</div>
-                    <div className="text-xs text-gray-500">{l.userEmail}</div>
+                    <div className="font-medium text-foreground">{l.userName}</div>
+                    <div className="text-xs text-muted-foreground">{l.userEmail}</div>
                   </td>
                   <td className="px-4 py-2.5">
                     <StatusBadge
@@ -212,10 +212,10 @@ export function AuditClient({
                       colorClass={ACTION_COLORS[l.action]}
                     />
                   </td>
-                  <td className="px-4 py-2.5 text-xs text-gray-600">
+                  <td className="px-4 py-2.5 text-xs text-muted-foreground">
                     {ENTITY_LABELS[l.entity] ?? l.entity}
                   </td>
-                  <td className="px-4 py-2.5 text-gray-900">{l.entityName ?? "—"}</td>
+                  <td className="px-4 py-2.5 text-foreground">{l.entityName ?? "—"}</td>
                   <td className="px-4 py-2.5 text-right">
                     <Button variant="ghost" size="sm">
                       Chi tiết
@@ -231,7 +231,7 @@ export function AuditClient({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <div className="text-gray-500">
+          <div className="text-muted-foreground">
             Trang {page} / {totalPages}
           </div>
           <div className="flex gap-2">
@@ -300,38 +300,38 @@ function FriendlyDiff({ log }: { log: Log }) {
     const diff = computeDiff(log.beforeJson, log.afterJson);
     if (diff.length === 0) {
       return (
-        <div className="text-sm text-gray-500 italic">
+        <div className="text-sm text-muted-foreground italic">
           Không có trường nào thay đổi đáng kể.
         </div>
       );
     }
     return (
       <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
+        <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">
           Đã đổi {diff.length} thông tin
         </div>
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-500 tracking-wider">
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground tracking-wider">
               <tr>
                 <th className="px-3 py-2 text-left font-medium w-1/4">Thông tin</th>
                 <th className="px-3 py-2 text-left font-medium">Trước</th>
                 <th className="px-3 py-2 text-left font-medium">Sau</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {diff.map((d) => (
                 <tr key={d.field}>
-                  <td className="px-3 py-2 text-gray-700 font-medium align-top">
+                  <td className="px-3 py-2 text-foreground font-medium align-top">
                     {d.label}
                   </td>
                   <td className="px-3 py-2 align-top">
-                    <span className="inline-block px-2 py-0.5 rounded bg-red-50 text-red-700 text-xs">
+                    <span className="inline-block px-2 py-0.5 rounded bg-destructive-soft text-destructive text-xs">
                       {d.before}
                     </span>
                   </td>
                   <td className="px-3 py-2 align-top">
-                    <span className="inline-block px-2 py-0.5 rounded bg-green-50 text-green-700 text-xs">
+                    <span className="inline-block px-2 py-0.5 rounded bg-success-soft text-success text-xs">
                       {d.after}
                     </span>
                   </td>
@@ -349,21 +349,21 @@ function FriendlyDiff({ log }: { log: Log }) {
     const fields = listFields(log.afterJson);
     if (fields.length === 0) {
       return (
-        <div className="text-sm text-gray-500 italic">Không có thông tin chi tiết.</div>
+        <div className="text-sm text-muted-foreground italic">Không có thông tin chi tiết.</div>
       );
     }
     return (
       <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
+        <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">
           Thông tin khi tạo
         </div>
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {fields.map((f) => (
                 <tr key={f.field}>
-                  <td className="px-3 py-2 text-gray-500 w-1/3 align-top">{f.label}</td>
-                  <td className="px-3 py-2 text-gray-900 align-top">{f.value}</td>
+                  <td className="px-3 py-2 text-muted-foreground w-1/3 align-top">{f.label}</td>
+                  <td className="px-3 py-2 text-foreground align-top">{f.value}</td>
                 </tr>
               ))}
             </tbody>
@@ -378,23 +378,23 @@ function FriendlyDiff({ log }: { log: Log }) {
     const fields = listFields(log.beforeJson);
     if (fields.length === 0) {
       return (
-        <div className="text-sm text-gray-500 italic">
+        <div className="text-sm text-muted-foreground italic">
           Đã xoá. Không có dữ liệu chi tiết.
         </div>
       );
     }
     return (
       <div>
-        <div className="text-xs font-semibold text-gray-500 uppercase mb-2">
+        <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">
           Thông tin trước khi xoá
         </div>
-        <div className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="border border-border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {fields.map((f) => (
                 <tr key={f.field}>
-                  <td className="px-3 py-2 text-gray-500 w-1/3 align-top">{f.label}</td>
-                  <td className="px-3 py-2 text-gray-900 align-top">{f.value}</td>
+                  <td className="px-3 py-2 text-muted-foreground w-1/3 align-top">{f.label}</td>
+                  <td className="px-3 py-2 text-foreground align-top">{f.value}</td>
                 </tr>
               ))}
             </tbody>
@@ -407,7 +407,7 @@ function FriendlyDiff({ log }: { log: Log }) {
   // RESTORE
   if (log.action === "RESTORE") {
     return (
-      <div className="text-sm text-gray-700">
+      <div className="text-sm text-foreground">
         Đã khôi phục đối tượng đã xoá trước đó.
       </div>
     );
@@ -419,8 +419,8 @@ function FriendlyDiff({ log }: { log: Log }) {
 function Kv({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-gray-900">{value}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-foreground">{value}</div>
     </div>
   );
 }

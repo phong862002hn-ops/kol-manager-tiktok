@@ -73,7 +73,7 @@ export function KolCommentThread(props: Props) {
           onChange={(e) => setText(e.target.value)}
           placeholder="Viết bình luận về KOL này..."
           rows={2}
-          className="flex-1 text-sm border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+          className="flex-1 text-sm border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
               handleSubmit(e);
@@ -84,39 +84,39 @@ export function KolCommentThread(props: Props) {
           {submitting ? "..." : "Gửi"}
         </Button>
       </form>
-      <div className="text-[11px] text-gray-400">
+      <div className="text-[11px] text-muted-foreground/70">
         ⌘+Enter để gửi nhanh
       </div>
 
       <div className="space-y-2">
         {isLoading ? (
-          <div className="text-xs text-gray-400 text-center py-4">Đang tải...</div>
+          <div className="text-xs text-muted-foreground/70 text-center py-4">Đang tải...</div>
         ) : !comments || comments.length === 0 ? (
-          <div className="text-xs text-gray-400 text-center py-4">
+          <div className="text-xs text-muted-foreground/70 text-center py-4">
             {props.emptyHint ?? "Chưa có bình luận. Hãy là người đầu tiên."}
           </div>
         ) : (
           comments.map((c) => (
             <div
               key={c.id}
-              className="border border-gray-200 rounded-md p-3 bg-gray-50/50"
+              className="border border-border rounded-md p-3 bg-muted/50/50"
             >
               <div className="flex items-baseline justify-between gap-2 mb-1">
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm font-medium text-foreground">
                   {c.user.name}
                 </div>
-                <div className="text-[11px] text-gray-500">
+                <div className="text-[11px] text-muted-foreground">
                   {formatDateTime(c.createdAt)}
                 </div>
               </div>
-              <div className="text-sm text-gray-700 whitespace-pre-wrap">
+              <div className="text-sm text-foreground whitespace-pre-wrap">
                 {c.content}
               </div>
               <div className="text-right mt-1">
                 <button
                   type="button"
                   onClick={() => handleDelete(c.id)}
-                  className="text-[10px] text-red-600 hover:underline"
+                  className="text-[10px] text-destructive hover:underline"
                 >
                   Xoá
                 </button>

@@ -30,7 +30,7 @@ export function StaffFilter() {
 
   return (
     <div className="flex items-center gap-1">
-      <Label className="text-xs text-gray-500 whitespace-nowrap">Nhân sự</Label>
+      <Label className="text-xs text-muted-foreground whitespace-nowrap">Nhân sự</Label>
       <Select value={value} onValueChange={(v) => v && push(v)}>
         <SelectTrigger className="h-8 w-[160px]">
           <span data-slot="select-value" className="flex flex-1 text-left line-clamp-1">

@@ -96,7 +96,7 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
           }}
           className="max-w-xs h-9"
         />
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-muted-foreground">
           {query ? (
             <>
               {filtered.length} / {rows.length} KOL
@@ -108,10 +108,10 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
       </div>
 
       {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+      <div className="bg-card border border-border rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+          <thead className="bg-muted/50 border-b border-border">
+            <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
               <th className="px-4 py-3 font-medium w-12">#</th>
               {COLS.map((col) => {
                 const active = sortKey === col.key;
@@ -126,12 +126,12 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
                     <button
                       type="button"
                       onClick={() => toggleSort(col.key)}
-                      className={`inline-flex items-center gap-1 hover:text-gray-900 ${
-                        active ? "text-gray-900 font-semibold" : ""
+                      className={`inline-flex items-center gap-1 hover:text-foreground ${
+                        active ? "text-foreground font-semibold" : ""
                       }`}
                     >
                       {col.label}
-                      {col.tip && <span className="text-gray-400">ⓘ</span>}
+                      {col.tip && <span className="text-muted-foreground/70">ⓘ</span>}
                       <span
                         className={`text-[10px] ${active ? "opacity-100" : "opacity-30"}`}
                       >
@@ -143,10 +143,10 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
               })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-border">
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                   {query ? `Không tìm thấy KOL khớp "${query}"` : "Chưa có dữ liệu"}
                 </td>
               </tr>
@@ -154,16 +154,16 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
               pageRows.map((k, i) => {
                 const globalIdx = (currentPage - 1) * PAGE_SIZE + i + 1;
                 return (
-                  <tr key={k.username} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-500">{globalIdx}</td>
+                  <tr key={k.username} className="hover:bg-muted/60">
+                    <td className="px-4 py-3 text-muted-foreground">{globalIdx}</td>
                     <td className="px-4 py-3 font-medium">@{k.username}</td>
                     <td className="px-4 py-3 text-right">{formatNumber(k.orders)}</td>
                     <td className="px-4 py-3 text-right">{formatVnd(k.revenue)}</td>
                     <td className="px-4 py-3 text-right">{formatVnd(k.commission)}</td>
-                    <td className="px-4 py-3 text-right text-gray-600">
+                    <td className="px-4 py-3 text-right text-muted-foreground">
                       {k.actualCommission > 0 ? formatVnd(k.actualCommission) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-600">
+                    <td className="px-4 py-3 text-right text-muted-foreground">
                       {k.commissionRate.toFixed(1)}%
                     </td>
                   </tr>
@@ -177,7 +177,7 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4 text-sm">
-          <div className="text-gray-500">
+          <div className="text-muted-foreground">
             Trang {currentPage} / {totalPages} · hiển thị {pageRows.length} / {filtered.length}
           </div>
           <div className="flex gap-2">

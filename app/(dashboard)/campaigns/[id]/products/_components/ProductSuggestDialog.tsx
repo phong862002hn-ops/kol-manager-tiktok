@@ -77,20 +77,20 @@ export function ProductSuggestDialog({
         <DialogHeader>
           <DialogTitle>Gợi ý sản phẩm từ Excel</DialogTitle>
         </DialogHeader>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-muted-foreground">
           Các sản phẩm KOL trong campaign này đã từng bán nhưng chưa có trong campaign.
         </div>
         <div className="flex-1 overflow-y-auto border rounded-md">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500 text-sm">Đang tải...</div>
+            <div className="p-8 text-center text-muted-foreground text-sm">Đang tải...</div>
           ) : !data || data.length === 0 ? (
-            <div className="p-8 text-center text-gray-500 text-sm">
+            <div className="p-8 text-center text-muted-foreground text-sm">
               Không có gợi ý mới.
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b sticky top-0">
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-muted/50 border-b sticky top-0">
+                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="px-3 py-2 w-10"></th>
                   <th className="px-3 py-2 font-medium">Tên</th>
                   <th className="px-3 py-2 font-medium">ID TikTok</th>
@@ -98,11 +98,11 @@ export function ProductSuggestDialog({
                   <th className="px-3 py-2 font-medium text-right">Số đơn</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {data.map((s) => (
                   <tr
                     key={s.tiktokId}
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-muted/60 cursor-pointer"
                     onClick={() => toggle(s.tiktokId)}
                   >
                     <td className="px-3 py-2">
@@ -113,10 +113,10 @@ export function ProductSuggestDialog({
                       />
                     </td>
                     <td className="px-3 py-2">{s.name}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-gray-600">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {s.tiktokId}
                     </td>
-                    <td className="px-3 py-2 text-gray-600">{s.sku ?? "—"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{s.sku ?? "—"}</td>
                     <td className="px-3 py-2 text-right">
                       {formatNumber(s.orderCount)}
                     </td>
@@ -127,7 +127,7 @@ export function ProductSuggestDialog({
           )}
         </div>
         <DialogFooter>
-          <div className="flex-1 text-sm text-gray-500 self-center">
+          <div className="flex-1 text-sm text-muted-foreground self-center">
             Đã chọn {selected.size}
           </div>
           <Button variant="outline" onClick={() => setOpen(false)}>Hủy</Button>

@@ -58,7 +58,7 @@ export function PasswordResetDialog({
           <DialogTitle>Reset mật khẩu cho {user.name}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="text-xs text-gray-500 bg-yellow-50 border border-yellow-200 rounded p-2">
+          <div className="text-xs text-muted-foreground bg-warning-soft border border-warning/30 rounded p-2">
             Nhập mật khẩu mới — bạn sẽ đọc cho nhân sự, họ vào đổi lại sau.
           </div>
           <div className="space-y-2">

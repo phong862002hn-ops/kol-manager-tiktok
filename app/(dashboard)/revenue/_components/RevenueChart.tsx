@@ -23,11 +23,11 @@ export function RevenueChart({ data }: { data: Row[] }) {
   if (data.length === 0) return null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="text-sm font-semibold text-gray-900 mb-1">
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="text-sm font-semibold text-foreground mb-1">
         Top {data.length} KOL theo doanh thu
       </div>
-      <div className="text-xs text-gray-500 mb-4">
+      <div className="text-xs text-muted-foreground mb-4">
         So sánh doanh thu vs hoa hồng
       </div>
       <div className="h-80">

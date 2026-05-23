@@ -123,14 +123,14 @@ export function CastCostDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {existing?.status === "REJECTED" && existing.rejectReason && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-              <div className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1">
+            <div className="bg-destructive-soft border border-destructive/30 rounded-md p-3">
+              <div className="text-xs font-semibold text-destructive uppercase tracking-wider mb-1">
                 ⚠ Đề xuất trước bị từ chối
               </div>
-              <div className="text-sm text-red-900 whitespace-pre-wrap">
+              <div className="text-sm text-destructive whitespace-pre-wrap">
                 {existing.rejectReason}
               </div>
-              <div className="text-[11px] text-red-700 mt-2">
+              <div className="text-[11px] text-destructive mt-2">
                 Sửa số tiền hoặc loại → tự reset về &quot;Chờ duyệt&quot; để Manager xem lại.
               </div>
             </div>
@@ -168,7 +168,7 @@ export function CastCostDialog({
                 value={paidAmount}
                 onChange={(e) => setPaidAmount(e.target.value)}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Tracking riêng — không ảnh hưởng tính lợi nhuận.
               </p>
             </div>
@@ -178,7 +178,7 @@ export function CastCostDialog({
             <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
           {willResetStatus && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
+            <div className="bg-warning-soft border border-warning/30 rounded p-2 text-xs text-warning">
               Sửa số tiền hoặc loại sẽ reset trạng thái về &quot;Chờ duyệt&quot;.
             </div>
           )}
@@ -190,7 +190,7 @@ export function CastCostDialog({
                   variant="ghost"
                   onClick={handleDelete}
                   disabled={loading}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-destructive hover:text-destructive"
                 >
                   Xóa
                 </Button>

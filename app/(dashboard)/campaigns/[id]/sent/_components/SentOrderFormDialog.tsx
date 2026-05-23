@@ -171,7 +171,7 @@ export function SentOrderFormDialog({
               <Select value={kolUsername} onValueChange={(v) => v && setKolUsername(v)}>
                 <SelectTrigger className="w-full">
                   <span data-slot="select-value" className="flex flex-1 text-left">
-                    {kolUsername ? `@${kolUsername}` : <span className="text-gray-400">Chọn KOL trong campaign</span>}
+                    {kolUsername ? `@${kolUsername}` : <span className="text-muted-foreground/70">Chọn KOL trong campaign</span>}
                   </span>
                 </SelectTrigger>
                 <SelectContent>
@@ -192,7 +192,7 @@ export function SentOrderFormDialog({
                 <SelectTrigger className="w-full">
                   <span data-slot="select-value" className="flex flex-1 text-left">
                     {users.find((u) => u.id === staffId)?.name ?? (
-                      <span className="text-gray-400">—</span>
+                      <span className="text-muted-foreground/70">—</span>
                     )}
                   </span>
                 </SelectTrigger>
@@ -281,7 +281,7 @@ export function SentOrderFormDialog({
               />
             </div>
             {lines.length === 0 ? (
-              <div className="text-sm text-gray-500 bg-gray-50 rounded p-3 text-center">
+              <div className="text-sm text-muted-foreground bg-muted/50 rounded p-3 text-center">
                 Chưa có sản phẩm. Bấm &quot;+ Thêm sản phẩm&quot; để chọn.
               </div>
             ) : (
@@ -291,15 +291,15 @@ export function SentOrderFormDialog({
                   return (
                     <div key={l.productId} className="flex gap-2 items-center p-2">
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm text-gray-900 line-clamp-1">
+                        <div className="text-sm text-foreground line-clamp-1">
                           {p?.name ?? l.productName}
                         </div>
                         {p?.sku && (
-                          <div className="text-xs text-gray-500">{p.sku}</div>
+                          <div className="text-xs text-muted-foreground">{p.sku}</div>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Label htmlFor={`qty-${i}`} className="text-xs text-gray-500">
+                        <Label htmlFor={`qty-${i}`} className="text-xs text-muted-foreground">
                           SL
                         </Label>
                         <Input
@@ -316,7 +316,7 @@ export function SentOrderFormDialog({
                         variant="ghost"
                         size="sm"
                         onClick={() => removeLine(i)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive"
                       >
                         ×
                       </Button>
@@ -357,7 +357,7 @@ export function SentOrderFormDialog({
                 }}
               />
               {trackingCode.trim() && status === "SHIPPING" && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Tự đổi trạng thái sang &quot;Đang giao&quot; vì đã có mã vận đơn.
                 </p>
               )}

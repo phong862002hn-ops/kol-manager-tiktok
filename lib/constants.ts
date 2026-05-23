@@ -7,11 +7,11 @@ export const KOL_STATUS_LABELS: Record<string, string> = {
 };
 
 export const KOL_STATUS_COLORS: Record<string, string> = {
-  PAUSED: "bg-gray-100 text-gray-700",
-  NEW_CONTACT: "bg-blue-100 text-blue-700",
-  CONTACTING: "bg-yellow-100 text-yellow-700",
-  NEGOTIATING: "bg-orange-100 text-orange-700",
-  BOOKED: "bg-green-100 text-green-700",
+  PAUSED: "bg-muted text-muted-foreground",
+  NEW_CONTACT: "bg-primary-soft text-primary",
+  CONTACTING: "bg-warning-soft text-warning",
+  NEGOTIATING: "bg-warning-soft text-warning",
+  BOOKED: "bg-success-soft text-success",
 };
 
 export const KOL_STATUS_ORDER = [
@@ -29,9 +29,9 @@ export const CAMPAIGN_STATUS_LABELS: Record<string, string> = {
 };
 
 export const CAMPAIGN_STATUS_COLORS: Record<string, string> = {
-  ACTIVE: "bg-green-100 text-green-700",
-  PAUSED: "bg-yellow-100 text-yellow-700",
-  COMPLETED: "bg-gray-100 text-gray-700",
+  ACTIVE: "bg-success-soft text-success",
+  PAUSED: "bg-warning-soft text-warning",
+  COMPLETED: "bg-muted text-muted-foreground",
 };
 
 export const CAST_STATUS_LABELS: Record<string, string> = {
@@ -41,9 +41,9 @@ export const CAST_STATUS_LABELS: Record<string, string> = {
 };
 
 export const CAST_STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-700",
-  APPROVED: "bg-green-100 text-green-700",
-  REJECTED: "bg-red-100 text-red-700",
+  PENDING: "bg-warning-soft text-warning",
+  APPROVED: "bg-success-soft text-success",
+  REJECTED: "bg-destructive-soft text-destructive",
 };
 
 export const COST_TYPE_LABELS: Record<string, string> = {

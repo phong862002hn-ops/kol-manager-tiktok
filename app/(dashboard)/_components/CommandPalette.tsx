@@ -142,13 +142,13 @@ export function CommandPalette() {
         </div>
         <div className="max-h-[60vh] overflow-y-auto">
           {items.length === 0 ? (
-            <div className="p-8 text-center text-sm text-gray-500">
+            <div className="p-8 text-center text-sm text-muted-foreground">
               {q ? "Không tìm thấy" : "Gõ để bắt đầu tìm kiếm"}
             </div>
           ) : (
             grouped.map((g) => (
               <div key={g.group} className="py-2">
-                <div className="px-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400 mb-1">
+                <div className="px-4 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-1">
                   {g.group}
                 </div>
                 {g.items.map((it, i) => {
@@ -161,16 +161,16 @@ export function CommandPalette() {
                       onClick={() => go(it)}
                       onMouseEnter={() => setActiveIdx(globalIdx)}
                       className={`w-full text-left px-4 py-2 flex items-center justify-between text-sm ${
-                        active ? "bg-blue-50 text-blue-700" : "hover:bg-gray-50"
+                        active ? "bg-primary-soft text-primary" : "hover:bg-muted/60"
                       }`}
                     >
                       <div>
                         <div className="font-medium">{it.label}</div>
                         {it.subLabel && (
-                          <div className="text-xs text-gray-500">{it.subLabel}</div>
+                          <div className="text-xs text-muted-foreground">{it.subLabel}</div>
                         )}
                       </div>
-                      {active && <span className="text-xs text-gray-400">↵</span>}
+                      {active && <span className="text-xs text-muted-foreground/70">↵</span>}
                     </button>
                   );
                 })}
@@ -178,7 +178,7 @@ export function CommandPalette() {
             ))
           )}
         </div>
-        <div className="px-3 py-2 border-t bg-gray-50 text-[11px] text-gray-500 flex justify-between">
+        <div className="px-3 py-2 border-t bg-muted/50 text-[11px] text-muted-foreground flex justify-between">
           <span>↑↓ chuyển — ↵ chọn</span>
           <span>⌘K mở/đóng</span>
         </div>

@@ -47,7 +47,7 @@ export function DateRangeFilter() {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <div className="flex items-center gap-1">
-        <Label htmlFor="from" className="text-xs text-gray-500 whitespace-nowrap">
+        <Label htmlFor="from" className="text-xs text-muted-foreground whitespace-nowrap">
           Từ
         </Label>
         <Input
@@ -63,7 +63,7 @@ export function DateRangeFilter() {
         />
       </div>
       <div className="flex items-center gap-1">
-        <Label htmlFor="to" className="text-xs text-gray-500 whitespace-nowrap">
+        <Label htmlFor="to" className="text-xs text-muted-foreground whitespace-nowrap">
           đến
         </Label>
         <Input
@@ -94,7 +94,7 @@ export function DateRangeFilter() {
           variant="ghost"
           size="sm"
           onClick={clear}
-          className="h-8 text-xs text-gray-500"
+          className="h-8 text-xs text-muted-foreground"
         >
           Xóa
         </Button>

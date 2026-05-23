@@ -133,7 +133,7 @@ export function UserFormDialog({
                 minLength={6}
                 placeholder="Nhập mật khẩu tạm cho nhân sự"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Đưa mật khẩu này cho nhân sự, họ vào app rồi đổi sau (góc trên phải sidebar).
               </p>
             </div>

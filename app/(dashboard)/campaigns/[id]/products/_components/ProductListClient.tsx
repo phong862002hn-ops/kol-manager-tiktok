@@ -44,7 +44,7 @@ export function ProductListClient({
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-500">{rows.length} sản phẩm</div>
+        <div className="text-sm text-muted-foreground">{rows.length} sản phẩm</div>
         <div className="flex gap-2">
           <ProductSuggestDialog
             campaignId={campaignId}
@@ -61,14 +61,14 @@ export function ProductListClient({
       </div>
 
       {rows.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Chưa có sản phẩm. Bấm &quot;+ Thêm sản phẩm&quot; hoặc &quot;Gợi ý từ Excel&quot;.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+        <div className="bg-card border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+            <thead className="bg-muted/50 border-b border-border">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Sản phẩm</th>
                 <th className="px-4 py-3 font-medium">ID TikTok</th>
                 <th className="px-4 py-3 font-medium">SKU nội bộ</th>
@@ -78,21 +78,21 @@ export function ProductListClient({
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {rows.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50">
+                <tr key={r.id} className="hover:bg-muted/60">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{r.name}</div>
+                    <div className="font-medium text-foreground">{r.name}</div>
                     {r.note && (
-                      <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                      <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                         {r.note}
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                     {r.tiktokId}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{r.sku ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.sku ?? "—"}</td>
                   <td className="px-4 py-3 text-right">
                     {formatNumber(r.kolCount)}
                   </td>
@@ -117,7 +117,7 @@ export function ProductListClient({
                       size="sm"
                       onClick={() => handleDelete(r)}
                       disabled={busy === r.id}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive"
                     >
                       Xóa
                     </Button>

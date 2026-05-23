@@ -106,7 +106,7 @@ export function KolListClient({
             onChange={(e) => setQuery(e.target.value)}
             className="max-w-xs h-9"
           />
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             {query
               ? `${filteredRows.length} / ${rows.length} KOL`
               : `${rows.length} KOL`}
@@ -119,19 +119,19 @@ export function KolListClient({
       </div>
 
       {rows.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Chưa có KOL. Bấm &quot;+ Thêm KOL&quot; để thêm.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+        <div className="bg-card border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+            <thead className="bg-muted/50 border-b border-border">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-4 py-3 font-medium">
                   <button
                     type="button"
                     onClick={() => toggleSort("username")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Username <span className="text-[10px]">{sortIcon("username")}</span>
                   </button>
@@ -143,7 +143,7 @@ export function KolListClient({
                   <button
                     type="button"
                     onClick={() => toggleSort("orders")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Đơn <span className="text-[10px]">{sortIcon("orders")}</span>
                   </button>
@@ -152,7 +152,7 @@ export function KolListClient({
                   <button
                     type="button"
                     onClick={() => toggleSort("revenue")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Doanh thu <span className="text-[10px]">{sortIcon("revenue")}</span>
                   </button>
@@ -161,7 +161,7 @@ export function KolListClient({
                   <button
                     type="button"
                     onClick={() => toggleSort("commission")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Hoa hồng <span className="text-[10px]">{sortIcon("commission")}</span>
                   </button>
@@ -170,7 +170,7 @@ export function KolListClient({
                   <button
                     type="button"
                     onClick={() => toggleSort("castApproved")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Cast <span className="text-[10px]">{sortIcon("castApproved")}</span>
                   </button>
@@ -179,7 +179,7 @@ export function KolListClient({
                   <button
                     type="button"
                     onClick={() => toggleSort("profit")}
-                    className="inline-flex items-center gap-1 hover:text-gray-900"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     Lợi nhuận <span className="text-[10px]">{sortIcon("profit")}</span>
                   </button>
@@ -187,45 +187,45 @@ export function KolListClient({
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {filteredRows.length === 0 && query ? (
                 <tr>
                   <td
                     colSpan={10}
-                    className="px-4 py-12 text-center text-gray-500"
+                    className="px-4 py-12 text-center text-muted-foreground"
                   >
                     Không tìm thấy KOL khớp &quot;{query}&quot;
                   </td>
                 </tr>
               ) : null}
               {filteredRows.map((r) => (
-                <tr key={r.id} className="hover:bg-gray-50">
+                <tr key={r.id} className="hover:bg-muted/60">
                   <td className="px-4 py-3">
                     <button
                       type="button"
                       onClick={() => setDetailTarget(r)}
-                      className="font-medium text-gray-900 hover:text-blue-600"
+                      className="font-medium text-foreground hover:text-primary"
                     >
                       @{r.username}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{r.tag ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{r.tag ?? "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge
                       label={KOL_STATUS_LABELS[r.status]}
                       colorClass={KOL_STATUS_COLORS[r.status]}
                     />
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    {r.staffName ?? <span className="text-gray-300">— Chưa gán —</span>}
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {r.staffName ?? <span className="text-muted-foreground/50">— Chưa gán —</span>}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
+                  <td className="px-4 py-3 text-right text-foreground">
                     {formatNumber(r.orders)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
+                  <td className="px-4 py-3 text-right text-foreground">
                     {formatVnd(r.revenue)}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
+                  <td className="px-4 py-3 text-right text-foreground">
                     {formatVnd(r.commission)}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -255,7 +255,7 @@ export function KolListClient({
                                 : undefined
                             }
                           >
-                            <span className="text-gray-700 text-sm">
+                            <span className="text-foreground text-sm">
                               {formatVnd(r.castProposed)}
                             </span>
                             {r.castStatus && (
@@ -266,7 +266,7 @@ export function KolListClient({
                             )}
                             {r.castStatus === "REJECTED" && r.castRejectReason && (
                               <span
-                                className="text-[10px] text-red-600 max-w-[160px] truncate text-right italic"
+                                className="text-[10px] text-destructive max-w-[160px] truncate text-right italic"
                                 title={r.castRejectReason}
                               >
                                 {r.castRejectReason}
@@ -274,7 +274,7 @@ export function KolListClient({
                             )}
                           </button>
                         ) : (
-                          <button className="text-xs text-blue-600 hover:underline">
+                          <button className="text-xs text-primary hover:underline">
                             + Đề xuất
                           </button>
                         )
@@ -284,7 +284,7 @@ export function KolListClient({
                   <td className="px-4 py-3 text-right font-medium">
                     <span
                       className={
-                        r.profit >= 0 ? "text-green-700" : "text-red-700"
+                        r.profit >= 0 ? "text-success" : "text-destructive"
                       }
                     >
                       {formatVnd(r.profit)}
@@ -320,7 +320,7 @@ export function KolListClient({
                       size="sm"
                       onClick={() => handleDelete(r)}
                       disabled={busyId === r.id}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive"
                     >
                       Xóa
                     </Button>
@@ -346,7 +346,7 @@ export function KolListClient({
           <DialogHeader>
             <DialogTitle>
               Bình luận về @{commentTarget?.username}
-              <div className="text-xs font-normal text-gray-500 mt-1">
+              <div className="text-xs font-normal text-muted-foreground mt-1">
                 Thread riêng trong campaign này
               </div>
             </DialogTitle>

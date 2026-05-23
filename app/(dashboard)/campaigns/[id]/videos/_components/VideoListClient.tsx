@@ -77,14 +77,14 @@ export function VideoListClient({
       </div>
 
       {rows.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Chưa có video. Import file Excel để bắt đầu.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+        <div className="bg-card border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+            <thead className="bg-muted/50 border-b border-border">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-3 py-3 font-medium w-12">#</th>
                 <th className="px-3 py-3 font-medium">Video ID</th>
                 <th className="px-3 py-3 font-medium">KOL</th>
@@ -95,14 +95,14 @@ export function VideoListClient({
                 <th className="px-3 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {rows.map((r, i) => (
-                <tr key={r.contentId} className="hover:bg-gray-50">
-                  <td className="px-3 py-2.5 text-gray-500">{i + 1}</td>
+                <tr key={r.contentId} className="hover:bg-muted/60">
+                  <td className="px-3 py-2.5 text-muted-foreground">{i + 1}</td>
                   <td className="px-3 py-2.5">
                     <button
                       onClick={() => copyContentId(r.contentId)}
-                      className="font-mono text-xs text-gray-700 hover:text-blue-600"
+                      className="font-mono text-xs text-foreground hover:text-primary"
                       title="Click để copy"
                     >
                       {r.contentId.slice(-12)}
@@ -112,7 +112,7 @@ export function VideoListClient({
                         href={r.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-xs text-blue-600 hover:underline"
+                        className="ml-2 text-xs text-primary hover:underline"
                       >
                         Mở ↗
                       </a>
@@ -123,7 +123,7 @@ export function VideoListClient({
                   <td className="px-3 py-2.5 text-right text-xs">
                     {r.validOrders}
                     {r.totalOrders !== r.validOrders && (
-                      <span className="text-gray-400">/{r.totalOrders}</span>
+                      <span className="text-muted-foreground/70">/{r.totalOrders}</span>
                     )}
                   </td>
                   <td className="px-3 py-2.5 text-right font-medium">
@@ -148,7 +148,7 @@ export function VideoListClient({
             <DialogTitle>Link video TikTok</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-muted-foreground">
               Video ID: <span className="font-mono">{editing?.contentId}</span>
             </div>
             <div className="space-y-2">
@@ -183,9 +183,9 @@ export function VideoListClient({
 
 function Kpi({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
-      <div className="text-2xl font-semibold text-gray-900 mt-2">{value}</div>
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="text-xs text-muted-foreground uppercase tracking-wider">{label}</div>
+      <div className="text-2xl font-semibold text-foreground mt-2">{value}</div>
     </div>
   );
 }

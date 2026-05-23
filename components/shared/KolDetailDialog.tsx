@@ -110,7 +110,7 @@ export function KolDetailDialog({
         </DialogHeader>
 
         {isLoading || !data ? (
-          <div className="py-12 text-center text-sm text-gray-500">
+          <div className="py-12 text-center text-sm text-muted-foreground">
             Đang tải...
           </div>
         ) : (
@@ -122,16 +122,16 @@ export function KolDetailDialog({
                 colorClass={KOL_STATUS_COLORS[data.status]}
               />
               {data.tag && (
-                <StatusBadge label={data.tag} colorClass="bg-blue-100 text-blue-700" />
+                <StatusBadge label={data.tag} colorClass="bg-primary-soft text-primary" />
               )}
               <Link
                 href={`/campaigns/${data.campaign.id}`}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-primary hover:underline"
                 onClick={() => onOpenChange(false)}
               >
                 {data.campaign.name}
               </Link>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground/70">
                 Thêm vào {formatDate(data.createdAt)}
               </span>
             </div>
@@ -149,7 +149,7 @@ export function KolDetailDialog({
                 label="Lợi nhuận"
                 value={formatVnd(data.stats.profit)}
                 sub={data.stats.castApproved > 0 ? `− Cast ${formatVnd(data.stats.castApproved)}` : undefined}
-                valueClass={data.stats.profit >= 0 ? "text-green-700" : "text-red-700"}
+                valueClass={data.stats.profit >= 0 ? "text-success" : "text-destructive"}
               />
             </div>
 
@@ -168,7 +168,7 @@ export function KolDetailDialog({
                 <Field label="Instagram" value={data.ig} />
               </div>
               {data.note && (
-                <div className="mt-3 text-sm text-gray-600 bg-gray-50 rounded p-2">
+                <div className="mt-3 text-sm text-muted-foreground bg-muted/50 rounded p-2">
                   {data.note}
                 </div>
               )}
@@ -177,40 +177,40 @@ export function KolDetailDialog({
             {/* Cast info */}
             {data.cast && (
               <Section title="Chi phí cast">
-                <div className="bg-white border border-gray-200 rounded p-3 text-sm space-y-2">
+                <div className="bg-card border border-border rounded p-3 text-sm space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Số tiền</span>
+                    <span className="text-muted-foreground">Số tiền</span>
                     <span className="font-semibold">{formatVnd(data.cast.amount)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Loại</span>
+                    <span className="text-muted-foreground">Loại</span>
                     <span>{COST_TYPE_LABELS[data.cast.costType]}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-500">Trạng thái</span>
+                    <span className="text-muted-foreground">Trạng thái</span>
                     <StatusBadge
                       label={CAST_STATUS_LABELS[data.cast.status]}
                       colorClass={CAST_STATUS_COLORS[data.cast.status]}
                     />
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Đã thanh toán</span>
+                    <span className="text-muted-foreground">Đã thanh toán</span>
                     <span>{formatVnd(data.cast.paidAmount)}</span>
                   </div>
-                  <div className="border-t pt-2 text-xs text-gray-500">
-                    Đề xuất bởi <span className="font-medium text-gray-700">{data.cast.proposedBy}</span> · {formatDateTime(data.cast.proposedAt)}
+                  <div className="border-t pt-2 text-xs text-muted-foreground">
+                    Đề xuất bởi <span className="font-medium text-foreground">{data.cast.proposedBy}</span> · {formatDateTime(data.cast.proposedAt)}
                   </div>
                   {data.cast.approvedBy && (
-                    <div className="text-xs text-gray-500">
-                      Xử lý bởi <span className="font-medium text-gray-700">{data.cast.approvedBy}</span>
+                    <div className="text-xs text-muted-foreground">
+                      Xử lý bởi <span className="font-medium text-foreground">{data.cast.approvedBy}</span>
                       {data.cast.approvedAt ? ` · ${formatDateTime(data.cast.approvedAt)}` : ""}
                     </div>
                   )}
                   {data.cast.rejectReason && (
-                    <div className="text-xs text-red-600">Lý do: {data.cast.rejectReason}</div>
+                    <div className="text-xs text-destructive">Lý do: {data.cast.rejectReason}</div>
                   )}
                   {data.cast.note && (
-                    <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                    <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
                       Ghi chú: {data.cast.note}
                     </div>
                   )}
@@ -223,29 +223,29 @@ export function KolDetailDialog({
               <Section title={`Video (${data.videos.length})`}>
                 <div className="border rounded overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b">
-                      <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+                    <thead className="bg-muted/50 border-b">
+                      <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                         <th className="px-3 py-2 font-medium">Video ID</th>
                         <th className="px-3 py-2 font-medium text-right">Đơn</th>
                         <th className="px-3 py-2 font-medium text-right">GMV</th>
                         <th className="px-3 py-2 font-medium text-right">HH</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-border">
                       {data.videos.map((v) => (
-                        <tr key={v.contentId} className="hover:bg-gray-50">
+                        <tr key={v.contentId} className="hover:bg-muted/60">
                           <td className="px-3 py-2 font-mono text-xs">
                             {v.url ? (
                               <a
                                 href={v.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 hover:underline"
+                                className="text-primary hover:underline"
                               >
                                 {v.contentId.slice(-12)} ↗
                               </a>
                             ) : (
-                              <span className="text-gray-600">{v.contentId.slice(-12)}</span>
+                              <span className="text-muted-foreground">{v.contentId.slice(-12)}</span>
                             )}
                           </td>
                           <td className="px-3 py-2 text-right">{formatNumber(v.orders)}</td>
@@ -264,8 +264,8 @@ export function KolDetailDialog({
               <Section title={`Đơn gần đây (${data.recentOrders.length})`}>
                 <div className="border rounded overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-gray-50 border-b">
-                      <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+                    <thead className="bg-muted/50 border-b">
+                      <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                         <th className="px-3 py-2 font-medium">ID</th>
                         <th className="px-3 py-2 font-medium">Sản phẩm</th>
                         <th className="px-3 py-2 font-medium text-right">Giá trị</th>
@@ -273,13 +273,13 @@ export function KolDetailDialog({
                         <th className="px-3 py-2 font-medium">Thời gian</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-border">
                       {data.recentOrders.map((o) => {
                         const cancelled = isCancelledOrder(o.orderStatus);
                         return (
                           <tr
                             key={o.id}
-                            className={`hover:bg-gray-50 ${cancelled ? "text-gray-400" : ""}`}
+                            className={`hover:bg-muted/60 ${cancelled ? "text-muted-foreground/70" : ""}`}
                           >
                             <td className="px-3 py-2 font-mono text-xs">
                               ...{shortOrderId(o.orderId)}
@@ -294,7 +294,7 @@ export function KolDetailDialog({
                               <StatusBadge
                                 label={o.orderStatus}
                                 colorClass={
-                                  cancelled ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"
+                                  cancelled ? "bg-destructive-soft text-destructive" : "bg-muted text-foreground"
                                 }
                               />
                             </td>
@@ -328,12 +328,12 @@ function Kpi({
   valueClass?: string;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded p-3">
-      <div className="text-[11px] text-gray-500 uppercase tracking-wider">{label}</div>
-      <div className={`text-lg font-semibold mt-1 ${valueClass ?? "text-gray-900"}`}>
+    <div className="bg-card border border-border rounded p-3">
+      <div className="text-[11px] text-muted-foreground uppercase tracking-wider">{label}</div>
+      <div className={`text-lg font-semibold mt-1 ${valueClass ?? "text-foreground"}`}>
         {value}
       </div>
-      {sub && <div className="text-[11px] text-gray-500 mt-0.5">{sub}</div>}
+      {sub && <div className="text-[11px] text-muted-foreground mt-0.5">{sub}</div>}
     </div>
   );
 }
@@ -341,7 +341,7 @@ function Kpi({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
         {title}
       </div>
       {children}
@@ -352,8 +352,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Field({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <div className="text-xs text-gray-500">{label}</div>
-      <div className="text-sm text-gray-900">{value ?? "—"}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-sm text-foreground">{value ?? "—"}</div>
     </div>
   );
 }
@@ -417,22 +417,22 @@ function ProfileEditor({
 
   if (!editing) {
     return (
-      <div className="bg-white border border-gray-200 rounded p-3 space-y-3">
+      <div className="bg-card border border-border rounded p-3 space-y-3">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <div className="text-xs text-gray-500">Followers</div>
-            <div className="text-lg font-semibold text-gray-900">
+            <div className="text-xs text-muted-foreground">Followers</div>
+            <div className="text-lg font-semibold text-foreground">
               {data?.followerCount != null
                 ? formatNumber(data.followerCount)
                 : "—"}
             </div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">Tỉ lệ giới tính follower</div>
+            <div className="text-xs text-muted-foreground">Tỉ lệ giới tính follower</div>
             {data?.malePercent != null ? (
               <div className="mt-1">
                 <div className="flex items-baseline gap-3 text-sm">
-                  <span className="text-blue-600 font-semibold">
+                  <span className="text-primary font-semibold">
                     ♂ {data.malePercent.toFixed(0)}%
                   </span>
                   <span className="text-pink-600 font-semibold">
@@ -441,23 +441,23 @@ function ProfileEditor({
                 </div>
                 <div className="mt-1 h-2 rounded-full overflow-hidden bg-pink-200 flex">
                   <div
-                    className="bg-blue-500 h-full"
+                    className="bg-primary h-full"
                     style={{ width: `${data.malePercent}%` }}
                   />
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-gray-400">—</div>
+              <div className="text-sm text-muted-foreground/70">—</div>
             )}
           </div>
         </div>
         {data?.note && (
-          <div className="text-xs text-gray-600 bg-gray-50 rounded p-2">
+          <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
             {data.note}
           </div>
         )}
         <div className="flex items-center justify-between pt-1 border-t">
-          <div className="text-[11px] text-gray-400">
+          <div className="text-[11px] text-muted-foreground/70">
             {data?.updatedAt
               ? `Cập nhật ${formatDateTime(data.updatedAt)} bởi ${data.updatedBy ?? "—"}`
               : "Chưa có dữ liệu — bấm sửa để nhập"}
@@ -471,7 +471,7 @@ function ProfileEditor({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded p-3 space-y-3">
+    <div className="bg-card border border-border rounded p-3 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label htmlFor="followers" className="text-xs">
@@ -501,7 +501,7 @@ function ProfileEditor({
             placeholder="VD: 35"
           />
           {male !== "" && (
-            <div className="text-[11px] text-gray-500">
+            <div className="text-[11px] text-muted-foreground">
               Nữ tự suy ra = {(100 - parseFloat(male || "0")).toFixed(0)}%
             </div>
           )}

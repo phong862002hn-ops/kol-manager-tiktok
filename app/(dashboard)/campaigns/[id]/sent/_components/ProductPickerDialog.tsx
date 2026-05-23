@@ -107,19 +107,19 @@ export function ProductPickerDialog({
 
         <div className="flex-1 overflow-y-auto border rounded-md min-h-[200px]">
           {products.length === 0 ? (
-            <div className="p-8 text-center text-sm text-gray-500">
+            <div className="p-8 text-center text-sm text-muted-foreground">
               Chưa có sản phẩm nào trong campaign. Vào tab &quot;Sản phẩm&quot; để thêm trước.
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-8 text-center text-sm text-gray-500">
+            <div className="p-8 text-center text-sm text-muted-foreground">
               {query
                 ? `Không tìm thấy sản phẩm khớp với "${query}"`
                 : "Tất cả sản phẩm đã được chọn rồi."}
             </div>
           ) : (
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b sticky top-0">
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+              <thead className="bg-muted/50 border-b sticky top-0">
+                <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="px-3 py-2 w-10">
                     <input
                       type="checkbox"
@@ -135,11 +135,11 @@ export function ProductPickerDialog({
                   <th className="px-3 py-2 font-medium">ID TikTok</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {filtered.map((p) => (
                   <tr
                     key={p.id}
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="hover:bg-muted/60 cursor-pointer"
                     onClick={() => toggle(p.tiktokId)}
                   >
                     <td className="px-3 py-2">
@@ -151,8 +151,8 @@ export function ProductPickerDialog({
                       />
                     </td>
                     <td className="px-3 py-2">{p.name}</td>
-                    <td className="px-3 py-2 text-gray-600">{p.sku ?? "—"}</td>
-                    <td className="px-3 py-2 font-mono text-xs text-gray-500">
+                    <td className="px-3 py-2 text-muted-foreground">{p.sku ?? "—"}</td>
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
                       {p.tiktokId}
                     </td>
                   </tr>
@@ -163,8 +163,8 @@ export function ProductPickerDialog({
         </div>
 
         <DialogFooter className="flex-row items-center sm:justify-between">
-          <div className="text-sm text-gray-500">
-            Đã chọn <span className="font-medium text-gray-900">{selected.size}</span> sản phẩm
+          <div className="text-sm text-muted-foreground">
+            Đã chọn <span className="font-medium text-foreground">{selected.size}</span> sản phẩm
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>

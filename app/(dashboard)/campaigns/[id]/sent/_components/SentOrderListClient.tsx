@@ -13,10 +13,10 @@ import { formatDate, formatNumber } from "@/lib/format";
 import { toast } from "sonner";
 
 const SHIP_STATUS_COLORS: Record<string, string> = {
-  NOT_SENT: "bg-gray-100 text-gray-700",
-  SHIPPING: "bg-yellow-100 text-yellow-700",
-  DELIVERED: "bg-green-100 text-green-700",
-  RETURNED: "bg-red-100 text-red-700",
+  NOT_SENT: "bg-muted text-foreground",
+  SHIPPING: "bg-warning-soft text-warning",
+  DELIVERED: "bg-success-soft text-success",
+  RETURNED: "bg-destructive-soft text-destructive",
 };
 
 export function SentOrderListClient({
@@ -51,7 +51,7 @@ export function SentOrderListClient({
   return (
     <div className="p-8">
       <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-500">{orders.length} đơn gửi</div>
+        <div className="text-sm text-muted-foreground">{orders.length} đơn gửi</div>
         <SentOrderFormDialog
           campaignId={campaignId}
           kols={kols}
@@ -62,20 +62,20 @@ export function SentOrderListClient({
       </div>
 
       {kols.length === 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 mb-4">
+        <div className="bg-warning-soft border border-warning/30 rounded-lg p-3 text-sm text-warning mb-4">
           Chưa có KOL trong campaign. Vào tab &quot;KOL&quot; để thêm trước.
         </div>
       )}
 
       {orders.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-12 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-12 text-center text-muted-foreground">
           Chưa có đơn gửi mẫu nào.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
+        <div className="bg-card border border-border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+            <thead className="bg-muted/50 border-b border-border">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-3 py-3 font-medium">Ngày</th>
                 <th className="px-3 py-3 font-medium">KOL</th>
                 <th className="px-3 py-3 font-medium">Kênh</th>
@@ -88,9 +88,9 @@ export function SentOrderListClient({
                 <th className="px-3 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {orders.map((o) => (
-                <tr key={o.id} className="hover:bg-gray-50">
+                <tr key={o.id} className="hover:bg-muted/60">
                   <td className="px-3 py-2.5 text-xs">{formatDate(o.sentDate)}</td>
                   <td className="px-3 py-2.5 font-medium">@{o.kolUsername}</td>
                   <td className="px-3 py-2.5 text-xs">
@@ -99,7 +99,7 @@ export function SentOrderListClient({
                   <td className="px-3 py-2.5 text-xs">
                     {SAMPLE_TYPE_LABELS[o.sampleType]}
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-xs text-gray-600">
+                  <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground">
                     {o.tiktokOrderId ?? "—"}
                   </td>
                   <td className="px-3 py-2.5 text-xs">
@@ -110,22 +110,22 @@ export function SentOrderListClient({
                         {o.products.slice(0, 2).map((p, i) => (
                           <div key={i}>
                             {p.productName}{" "}
-                            <span className="text-gray-400">×{formatNumber(p.quantity)}</span>
+                            <span className="text-muted-foreground/70">×{formatNumber(p.quantity)}</span>
                           </div>
                         ))}
                         {o.products.length > 2 && (
-                          <div className="text-gray-400">
+                          <div className="text-muted-foreground/70">
                             +{o.products.length - 2} khác
                           </div>
                         )}
                       </div>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-xs text-gray-600">
+                  <td className="px-3 py-2.5 text-xs text-muted-foreground">
                     {o.staffName ?? "—"}
                   </td>
                   <td className="px-3 py-2.5 font-mono text-xs">
-                    {o.trackingCode ?? <span className="text-gray-300">—</span>}
+                    {o.trackingCode ?? <span className="text-muted-foreground/50">—</span>}
                   </td>
                   <td className="px-3 py-2.5">
                     <StatusBadge
@@ -151,7 +151,7 @@ export function SentOrderListClient({
                       size="sm"
                       onClick={() => handleDelete(o)}
                       disabled={busy === o.id}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive"
                     >
                       Xóa
                     </Button>

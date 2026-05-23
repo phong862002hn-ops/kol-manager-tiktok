@@ -42,7 +42,7 @@ export function ChangePasswordForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-gray-200 rounded-lg p-5 space-y-4"
+      className="bg-card border border-border rounded-lg p-5 space-y-4"
     >
       <div className="space-y-2">
         <Label htmlFor="current">Mật khẩu hiện tại *</Label>
@@ -66,7 +66,7 @@ export function ChangePasswordForm() {
           minLength={6}
           autoComplete="new-password"
         />
-        <p className="text-xs text-gray-500">Tối thiểu 6 ký tự.</p>
+        <p className="text-xs text-muted-foreground">Tối thiểu 6 ký tự.</p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="confirm">Nhập lại mật khẩu mới *</Label>

@@ -187,10 +187,10 @@ export function KolFormDialog({
                           {tag}
                         </span>
                       ) : (
-                        <span className="text-gray-700">{tag}</span>
+                        <span className="text-foreground">{tag}</span>
                       )
                     ) : (
-                      <span className="text-gray-400">— Không tag —</span>
+                      <span className="text-muted-foreground/70">— Không tag —</span>
                     )}
                   </span>
                 </SelectTrigger>
@@ -214,9 +214,9 @@ export function KolFormDialog({
                 </SelectContent>
               </Select>
               {(!tags || tags.length === 0) && (
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-muted-foreground">
                   Chưa có tag nào.{" "}
-                  <a href="/tags" className="text-blue-600 hover:underline">
+                  <a href="/tags" className="text-primary hover:underline">
                     Quản lý tag →
                   </a>
                 </p>
@@ -246,7 +246,7 @@ export function KolFormDialog({
                 <SelectTrigger className="w-full">
                   <span data-slot="select-value" className="flex flex-1 text-left">
                     {users?.find((u) => u.id === staffId)?.name ?? (
-                      <span className="text-gray-400">— Chưa gán —</span>
+                      <span className="text-muted-foreground/70">— Chưa gán —</span>
                     )}
                   </span>
                 </SelectTrigger>
@@ -262,7 +262,7 @@ export function KolFormDialog({
           </div>
 
           <div className="border-t pt-4">
-            <div className="text-sm font-medium text-gray-700 mb-3">Liên hệ</div>
+            <div className="text-sm font-medium text-foreground mb-3">Liên hệ</div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="zalo">Zalo</Label>
@@ -284,7 +284,7 @@ export function KolFormDialog({
           </div>
 
           <div className="border-t pt-4">
-            <div className="text-sm font-medium text-gray-700 mb-3">
+            <div className="text-sm font-medium text-foreground mb-3">
               Profile TikTok (cross-campaign)
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -312,20 +312,20 @@ export function KolFormDialog({
                   placeholder="VD: 35"
                 />
                 {malePercent !== "" && !isNaN(parseFloat(malePercent)) && (
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] text-muted-foreground">
                     Nữ ≈ {(100 - parseFloat(malePercent)).toFixed(0)}%
                   </p>
                 )}
               </div>
             </div>
-            <p className="text-[11px] text-gray-500 mt-2">
+            <p className="text-[11px] text-muted-foreground mt-2">
               Dùng chung cho mọi campaign KOL này tham gia. Bỏ trống nếu chưa biết.
             </p>
           </div>
 
           {!kol && (
             <div className="border-t pt-4">
-              <div className="text-sm font-medium text-gray-700 mb-3">
+              <div className="text-sm font-medium text-foreground mb-3">
                 Đề xuất chi phí cast (tùy chọn)
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -353,7 +353,7 @@ export function KolFormDialog({
                   </Select>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-muted-foreground mt-2">
                 Sẽ tạo đề xuất chờ Manager duyệt.
               </p>
             </div>

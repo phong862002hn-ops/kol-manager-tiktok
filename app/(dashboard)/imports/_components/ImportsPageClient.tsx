@@ -68,9 +68,9 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-semibold text-gray-900">Import File Excel</h1>
-      <p className="text-gray-500 mt-1 text-sm">
-        Upload file <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">creator_order_all_*.xlsx</code> từ TikTok Shop Center
+      <h1 className="text-2xl font-semibold text-foreground">Import File Excel</h1>
+      <p className="text-muted-foreground mt-1 text-sm">
+        Upload file <code className="text-xs bg-muted px-1 py-0.5 rounded">creator_order_all_*.xlsx</code> từ TikTok Shop Center
       </p>
 
       <div
@@ -85,22 +85,22 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
           if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
         }}
         className={`mt-6 border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-          dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-white"
+          dragOver ? "border-primary bg-primary-soft" : "border-border bg-card"
         }`}
       >
         <UploadCloud className="h-10 w-10 mx-auto mb-2 text-muted-foreground" strokeWidth={1.5} />
-        <p className="text-gray-700">
+        <p className="text-foreground">
           Kéo file (nhiều file cũng được) vào đây hoặc{" "}
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="text-blue-600 hover:underline font-medium"
+            className="text-primary hover:underline font-medium"
             disabled={uploading}
           >
             chọn file
           </button>
         </p>
-        <p className="text-xs text-gray-500 mt-1">.xlsx, .xls, .csv — hỗ trợ multi-file</p>
+        <p className="text-xs text-muted-foreground mt-1">.xlsx, .xls, .csv — hỗ trợ multi-file</p>
         <input
           ref={fileRef}
           type="file"
@@ -112,22 +112,22 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
           }}
         />
         {uploading && (
-          <p className="text-sm text-blue-600 mt-3">Đang xử lý...</p>
+          <p className="text-sm text-primary mt-3">Đang xử lý...</p>
         )}
       </div>
 
-      <h2 className="text-lg font-semibold text-gray-900 mt-10 mb-3">
+      <h2 className="text-lg font-semibold text-foreground mt-10 mb-3">
         Lịch sử import ({imports.length})
       </h2>
       {imports.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500">
+        <div className="bg-card border border-border rounded-lg p-8 text-center text-muted-foreground">
           Chưa có file nào.
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+            <thead className="bg-muted/50 border-b border-border">
+              <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                 <th className="px-4 py-3 font-medium">File</th>
                 <th className="px-4 py-3 font-medium text-right">Số dòng</th>
                 <th className="px-4 py-3 font-medium">Người upload</th>
@@ -135,17 +135,17 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
                 <th className="px-4 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {imports.map((i) => (
-                <tr key={i.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                <tr key={i.id} className="hover:bg-muted/60">
+                  <td className="px-4 py-3 font-medium text-foreground">
                     {i.fileName}
                   </td>
-                  <td className="px-4 py-3 text-right text-gray-700">
+                  <td className="px-4 py-3 text-right text-foreground">
                     {formatNumber(i.rowCount)}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{i.uploadedBy}</td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-muted-foreground">{i.uploadedBy}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
                     {formatDateTime(i.uploadedAt)}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -153,7 +153,7 @@ export function ImportsPageClient({ imports }: { imports: ImportRow[] }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDelete(i)}
-                      className="text-red-600 hover:text-red-700"
+                      className="text-destructive hover:text-destructive"
                     >
                       Xóa
                     </Button>

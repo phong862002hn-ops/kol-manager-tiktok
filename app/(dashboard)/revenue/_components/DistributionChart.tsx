@@ -43,9 +43,9 @@ export function DistributionChart({
   if (total === 0) return null;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="text-sm font-semibold text-gray-900 mb-1">{title}</div>
-      {subtitle && <div className="text-xs text-gray-500 mb-4">{subtitle}</div>}
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="text-sm font-semibold text-foreground mb-1">{title}</div>
+      {subtitle && <div className="text-xs text-muted-foreground mb-4">{subtitle}</div>}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -95,9 +95,9 @@ export function CurrencyDistributionChart({
   const hasOthers = othersDetail && othersDetail.length > 0;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5">
-      <div className="text-sm font-semibold text-gray-900 mb-1">{title}</div>
-      {subtitle && <div className="text-xs text-gray-500 mb-4">{subtitle}</div>}
+    <div className="bg-card border border-border rounded-lg p-5">
+      <div className="text-sm font-semibold text-foreground mb-1">{title}</div>
+      {subtitle && <div className="text-xs text-muted-foreground mb-4">{subtitle}</div>}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -141,7 +141,7 @@ export function CurrencyDistributionChart({
         <button
           type="button"
           onClick={() => setOthersOpen(true)}
-          className="mt-2 text-xs text-blue-600 hover:underline w-full text-center"
+          className="mt-2 text-xs text-primary hover:underline w-full text-center"
         >
           Click vào lát &quot;Khác&quot; hoặc bấm đây để xem chi tiết {othersDetail.length} KOL còn lại →
         </button>
@@ -157,8 +157,8 @@ export function CurrencyDistributionChart({
             </DialogHeader>
             <div className="flex-1 overflow-y-auto border rounded-md">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b sticky top-0">
-                  <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
+                <thead className="bg-muted/50 border-b sticky top-0">
+                  <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground">
                     <th className="px-3 py-2 w-10">#</th>
                     <th className="px-3 py-2 font-medium">KOL</th>
                     <th className="px-3 py-2 font-medium text-right">Đơn</th>
@@ -166,10 +166,10 @@ export function CurrencyDistributionChart({
                     <th className="px-3 py-2 font-medium text-right">Hoa hồng</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-border">
                   {othersDetail.map((r, i) => (
-                    <tr key={r.username} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 text-gray-500">{i + 11}</td>
+                    <tr key={r.username} className="hover:bg-muted/60">
+                      <td className="px-3 py-2 text-muted-foreground">{i + 11}</td>
                       <td className="px-3 py-2 font-medium">@{r.username}</td>
                       <td className="px-3 py-2 text-right">
                         {formatNumber(r.orders)}
