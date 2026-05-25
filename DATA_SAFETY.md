@@ -111,6 +111,9 @@ ln -s "$HOME/Library/Mobile Documents/com~apple~CloudDocs/kol-backups" backups
 
 ## Lưu ý
 - Audit log không log query GET/READ → chỉ ghi mutation.
-- Cast cost approve/reject chưa được log audit (chỉ log qua workflow status). Sẽ thêm sau nếu cần.
-- Soft-delete chưa có UI "Khôi phục" — phải SQL manual. Sẽ thêm sau nếu cần.
+- Cast cost (approve/reject/PATCH amount/DELETE) đã được log audit đầy đủ từ Slice 5.
+- Soft-delete đã có API "Khôi phục" cho Campaign + ExcelImport (Slice 11):
+  - `POST /api/campaigns/<id>/restore` (Manager-only)
+  - `POST /api/imports/<id>/restore` (Manager-only)
+  - Các entity khác (KOL, Product, SentOrder) vẫn cần SQL manual.
 - Backup KHÔNG bao gồm: file Excel gốc bạn upload (chỉ data đã parse vào DB).

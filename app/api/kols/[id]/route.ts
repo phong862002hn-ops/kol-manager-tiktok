@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSession, requireDeletePermission } from "@/lib/permissions";
+import { requireSession, requireDeletePermission, requireUpdatePermission } from "@/lib/permissions";
 import { handleApiError, apiError } from "@/lib/api-helper";
 import { normalizeUsername } from "@/lib/format";
 import { logAudit } from "@/lib/audit";
@@ -20,11 +20,13 @@ const updateSchema = z.object({
 
 export async function PATCH(req: NextRequest, ctx: { params: { id: string } }) {
   try {
-    const session = await requireSession();
+    await requireSession();
     const body = await req.json();
     const data = updateSchema.parse(body);
     const before = await prisma.campaignKol.findUnique({ where: { id: ctx.params.id } });
     if (!before || before.deletedAt) return apiError("Không tìm thấy KOL", 404);
+    // Slice 10: chỉ Manager hoặc creator được PATCH
+    const session = await requireUpdatePermission(before.createdById);
     const updated = await prisma.campaignKol.update({
       where: { id: ctx.params.id },
       data: {

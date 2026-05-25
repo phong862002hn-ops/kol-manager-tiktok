@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { isCancelledOrder } from "@/lib/constants";
+import { normalizeUsername } from "@/lib/normalize";
 
 export type KolStats = {
   totalOrders: number;
@@ -27,9 +28,14 @@ export type CampaignKpi = {
 // Lấy stats per KOL từ TiktokOrder, group theo username (lowercase)
 export async function getStatsByUsername(usernames: string[]): Promise<Map<string, KolStats>> {
   if (usernames.length === 0) return new Map();
+  // [SILENT-BUG FIX Slice 2] Normalize INPUT trước khi query.
+  // CampaignKol.username cũ có thể là "@Linh" raw, TiktokOrder.creatorUsername mới đã là "linh".
+  // Không normalize input → query miss → doanh thu KOL hiển thị 0 dù có đơn thật.
+  const normalized = usernames.map(normalizeUsername).filter(Boolean);
+  if (normalized.length === 0) return new Map();
   const orders = await prisma.tiktokOrder.findMany({
     where: {
-      creatorUsername: { in: usernames, mode: "insensitive" },
+      creatorUsername: { in: normalized, mode: "insensitive" },
       import: { deletedAt: null },
     },
     select: {
@@ -42,7 +48,7 @@ export async function getStatsByUsername(usernames: string[]): Promise<Map<strin
   });
   const map = new Map<string, KolStats>();
   for (const u of usernames) {
-    map.set(u.toLowerCase(), {
+    map.set(normalizeUsername(u), {
       totalOrders: 0,
       validOrders: 0,
       revenue: 0,
@@ -51,7 +57,7 @@ export async function getStatsByUsername(usernames: string[]): Promise<Map<strin
     });
   }
   for (const o of orders) {
-    const u = o.creatorUsername.toLowerCase();
+    const u = normalizeUsername(o.creatorUsername);
     const s = map.get(u);
     if (!s) continue;
     s.totalOrders += 1;
@@ -79,9 +85,11 @@ export async function getCampaignKpi(campaignId: string): Promise<CampaignKpi> {
   const statsMap = await getStatsByUsername(usernames);
 
   // Đếm video unique từ contentId (loại hủy)
-  const videoRows = await prisma.tiktokOrder.findMany({
+  // [SILENT-BUG FIX Slice 2] Normalize input — cùng lý do với getStatsByUsername.
+  const normalizedUsernames = usernames.map(normalizeUsername).filter(Boolean);
+  const videoRows = normalizedUsernames.length === 0 ? [] : await prisma.tiktokOrder.findMany({
     where: {
-      creatorUsername: { in: usernames, mode: "insensitive" },
+      creatorUsername: { in: normalizedUsernames, mode: "insensitive" },
       contentId: { not: null },
       import: { deletedAt: null },
     },
@@ -111,7 +119,7 @@ export async function getCampaignKpi(campaignId: string): Promise<CampaignKpi> {
   for (const k of kols) {
     pipeline[k.status] = (pipeline[k.status] ?? 0) + 1;
     if (k.status === "BOOKED") bookedCount += 1;
-    const s = statsMap.get(k.username.toLowerCase());
+    const s = statsMap.get(normalizeUsername(k.username));
     if (s) {
       totalOrders += s.totalOrders;
       validOrders += s.validOrders;

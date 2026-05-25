@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/permissions";
+import { requireSession, requireUpdatePermission } from "@/lib/permissions";
 import { handleApiError } from "@/lib/api-helper";
+import { logAudit } from "@/lib/audit";
+import { NotFoundError } from "@/lib/errors";
 
 // PATCH: chỉnh sửa amount/type/note hoặc cập nhật paidAmount
 // Nếu cast đã APPROVED hoặc REJECTED và sửa amount/type → reset về PENDING
@@ -18,13 +20,20 @@ export async function PATCH(req: NextRequest, ctx: { params: { id: string } }) {
     await requireSession();
     const data = patchSchema.parse(await req.json());
 
-    const current = await prisma.castCost.findUnique({ where: { id: ctx.params.id } });
-    if (!current) return NextResponse.json({ error: "Không tìm thấy" }, { status: 404 });
+    // Slice 5 SILENT-BUG FIX: audit sửa amount/paidAmount/costType — đây là chỗ
+    // tiền có thể bị đổi âm thầm (vd 1tr → 500k) mà approve không bắt được.
+    const before = await prisma.castCost.findUnique({
+      where: { id: ctx.params.id },
+      include: { campaignKol: { include: { campaign: { select: { name: true } } } } },
+    });
+    if (!before) throw new NotFoundError("Cast không tồn tại");
+    // Slice 10: chỉ Manager hoặc proposer được PATCH cast
+    const session = await requireUpdatePermission(before.proposedById);
 
     // Nếu sửa amount/costType → reset về PENDING
     const resetStatus =
-      (data.amount !== undefined && data.amount !== current.amount) ||
-      (data.costType !== undefined && data.costType !== current.costType);
+      (data.amount !== undefined && data.amount !== before.amount) ||
+      (data.costType !== undefined && data.costType !== before.costType);
 
     const updated = await prisma.castCost.update({
       where: { id: ctx.params.id },
@@ -33,7 +42,7 @@ export async function PATCH(req: NextRequest, ctx: { params: { id: string } }) {
         ...(data.costType !== undefined && { costType: data.costType }),
         ...(data.note !== undefined && { note: data.note }),
         ...(data.paidAmount !== undefined && { paidAmount: data.paidAmount }),
-        ...(resetStatus && current.status !== "PENDING"
+        ...(resetStatus && before.status !== "PENDING"
           ? {
               status: "PENDING",
               approvedById: null,
@@ -43,6 +52,17 @@ export async function PATCH(req: NextRequest, ctx: { params: { id: string } }) {
           : {}),
       },
     });
+
+    await logAudit({
+      user: { id: session.user.id, email: session.user.email!, name: session.user.name! },
+      action: "UPDATE",
+      entity: "CastCost",
+      entityId: updated.id,
+      entityName: `Cast @${before.campaignKol.username} (${before.campaignKol.campaign.name})`,
+      before,
+      after: updated,
+    });
+
     return NextResponse.json(updated);
   } catch (err) {
     return handleApiError(err);
@@ -52,7 +72,26 @@ export async function PATCH(req: NextRequest, ctx: { params: { id: string } }) {
 export async function DELETE(_: NextRequest, ctx: { params: { id: string } }) {
   try {
     await requireSession();
+    // Slice 5: log DELETE cast cũng quan trọng (mất record tiền)
+    const before = await prisma.castCost.findUnique({
+      where: { id: ctx.params.id },
+      include: { campaignKol: { include: { campaign: { select: { name: true } } } } },
+    });
+    if (!before) throw new NotFoundError("Cast không tồn tại");
+    // Slice 10: chỉ Manager hoặc proposer được DELETE cast
+    const session = await requireUpdatePermission(before.proposedById);
+
     await prisma.castCost.delete({ where: { id: ctx.params.id } });
+
+    await logAudit({
+      user: { id: session.user.id, email: session.user.email!, name: session.user.name! },
+      action: "DELETE",
+      entity: "CastCost",
+      entityId: before.id,
+      entityName: `Cast @${before.campaignKol.username} (${before.campaignKol.campaign.name})`,
+      before,
+    });
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     return handleApiError(err);

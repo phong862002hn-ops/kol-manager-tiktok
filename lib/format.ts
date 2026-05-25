@@ -30,9 +30,9 @@ export function formatDateTime(d: Date | string | null | undefined): string {
   }).format(date);
 }
 
-export function normalizeUsername(u: string): string {
-  return u.trim().toLowerCase().replace(/^@/, "");
-}
+// Re-export canonical normalizeUsername từ lib/normalize.
+// Giữ ở đây để backward compat — các route hiện đang import { normalizeUsername } from "@/lib/format".
+export { normalizeUsername } from "@/lib/normalize";
 
 export function shortOrderId(id: string): string {
   return id.length > 8 ? id.slice(-8) : id;

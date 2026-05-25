@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +48,9 @@ export function CampaignActions({ campaign }: { campaign: CampaignInput }) {
         trigger={<Button variant="outline">Sửa</Button>}
       />
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="outline">⋯</Button>} />
+        <DropdownMenuTrigger className={buttonVariants({ variant: "outline" })}>
+          ⋯
+        </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() => {

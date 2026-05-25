@@ -49,6 +49,7 @@ model Campaign {
   createdBy   User      @relation(fields: [createdById], references: [id])
   createdById String
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   kols       CampaignKol[]
@@ -89,6 +90,7 @@ model CampaignKol {
 
   note      String?
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@unique([campaignId, username])
@@ -126,6 +128,8 @@ model CastCost {
 
   paidAmount Int     @default(0)
   note       String?
+
+  updatedAt DateTime @updatedAt
 }
 
 enum CostType {
@@ -152,6 +156,7 @@ model Product {
   createdBy   User?     @relation("ProductCreator", fields: [createdById], references: [id])
   createdById String?
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   @@unique([campaignId, tiktokId])
@@ -182,6 +187,7 @@ model SentOrder {
 
   note      String?
   createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   @@index([createdById])
@@ -255,9 +261,9 @@ model TiktokOrder {
 
   rawData Json
 
+  @@unique([orderId])
   @@index([creatorUsername])
   @@index([contentId])
-  @@index([orderId])
   @@index([orderStatus])
 }
 
@@ -268,6 +274,7 @@ model VideoLink {
   note      String?
   addedBy   String
   addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Audit log — ghi lại mọi thao tác CREATE/UPDATE/DELETE/RESTORE
@@ -305,6 +312,7 @@ model Tag {
   name      String   @unique
   color     String   @default("#94a3b8") // hex, default slate
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   kols KolTag[]
 }
