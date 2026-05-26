@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/permissions";
 import { handleApiError } from "@/lib/api-helper";
 import { NotFoundError, ConflictError, ValidationError } from "@/lib/errors";
+import { notify, getManagerIds } from "@/lib/notifications";
+import { logAudit } from "@/lib/audit";
 
 const driveUrlRe = /drive\.google\.com|docs\.google\.com/;
 
@@ -31,6 +33,7 @@ export async function POST(
         id: true,
         deletedAt: true,
         status: true,
+        username: true,
         video: { select: { id: true, demoStatus: true } },
       },
     });
@@ -82,6 +85,39 @@ export async function POST(
 
       return { video: updatedVideo, submission };
     });
+
+    // Slice 5: audit
+    await logAudit({
+      user: {
+        id: session.user.id,
+        email: session.user.email!,
+        name: session.user.name!,
+      },
+      action: "CREATE",
+      entity: "VideoSubmission",
+      entityId: result.submission.id,
+      entityName: `@${campaignKol.username} v${result.submission.version}`,
+      after: {
+        videoId: result.submission.videoId,
+        version: result.submission.version,
+        driveUrl: result.submission.driveUrl,
+        status: result.submission.status,
+      },
+    });
+
+    // Slice 4: notify managers — best-effort, không block response.
+    const managerIds = await getManagerIds();
+    await notify(
+      managerIds
+        .filter((id) => id !== session.user.id)
+        .map((id) => ({
+          recipientId: id,
+          type: "VIDEO_DEMO_PENDING" as const,
+          title: `Demo v${result.submission.version} của @${campaignKol.username} chờ duyệt`,
+          body: `${session.user.name} vừa submit demo`,
+          link: "/videos-pending",
+        }))
+    );
 
     return NextResponse.json(result, { status: 201 });
   } catch (err) {

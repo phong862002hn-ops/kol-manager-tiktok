@@ -6,7 +6,10 @@ export type NotificationType =
   | "CAST_PENDING"
   | "CAST_APPROVED"
   | "CAST_REJECTED"
-  | "SENT_ORDER_STATUS";
+  | "SENT_ORDER_STATUS"
+  | "VIDEO_DEMO_PENDING"
+  | "VIDEO_DEMO_APPROVED"
+  | "VIDEO_DEMO_REVISION";
 
 type NotifyParams = {
   recipientId: string;

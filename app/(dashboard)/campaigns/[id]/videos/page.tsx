@@ -19,9 +19,10 @@ export default async function Page({ params }: { params: { id: string } }) {
       username: true,
       video: {
         select: {
+          id: true,
           demoStatus: true,
           currentSubmission: {
-            select: { version: true, driveUrl: true, submittedAt: true },
+            select: { id: true, version: true, driveUrl: true, submittedAt: true },
           },
         },
       },
@@ -34,8 +35,10 @@ export default async function Page({ params }: { params: { id: string } }) {
     campaignKolId: k.id,
     username: k.username,
     demoStatus: k.video?.demoStatus ?? "NOT_SUBMITTED",
+    videoId: k.video?.id ?? null,
     currentSubmission: k.video?.currentSubmission
       ? {
+          id: k.video.currentSubmission.id,
           version: k.video.currentSubmission.version,
           driveUrl: k.video.currentSubmission.driveUrl,
           submittedAt: k.video.currentSubmission.submittedAt.toISOString(),

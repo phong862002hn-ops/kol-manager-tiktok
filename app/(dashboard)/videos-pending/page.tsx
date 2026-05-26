@@ -33,6 +33,7 @@ export default async function VideosPendingPage() {
     .filter((v) => v.currentSubmission && v.campaignKol)
     .map((v) => ({
       videoId: v.id,
+      currentSubmissionId: v.currentSubmission!.id,
       kolUsername: v.campaignKol.username,
       campaignId: v.campaignKol.campaign.id,
       campaignName: v.campaignKol.campaign.name,

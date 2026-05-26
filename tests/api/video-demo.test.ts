@@ -18,6 +18,11 @@ import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { POST as submitPOST } from "@/app/api/campaign-kols/[id]/submissions/route";
 import { POST as reviewPOST } from "@/app/api/videos/[id]/review/route";
+import {
+  POST as commentPOST,
+  GET as commentGET,
+} from "@/app/api/submissions/[id]/comments/route";
+import { GET as historyGET } from "@/app/api/videos/[id]/submissions/route";
 
 type Seed = {
   staffId: string;
@@ -69,7 +74,11 @@ async function makeSeed(): Promise<Seed> {
 }
 
 async function cleanupSeed(s: Seed) {
-  // Cascade: deleting CampaignKol removes Video + Submissions.
+  // Cascade: deleting CampaignKol removes Video → Submissions → Comments.
+  // Notifications + audit logs reference users, dọn riêng.
+  await prisma.notification.deleteMany({
+    where: { recipientId: { in: [s.staffId, s.managerId] } },
+  });
   await prisma.video.deleteMany({ where: { campaignKolId: s.campaignKolId } });
   await prisma.campaignKol.delete({ where: { id: s.campaignKolId } }).catch(() => {});
   await prisma.campaign.delete({ where: { id: s.campaignId } }).catch(() => {});
@@ -191,5 +200,175 @@ describe("Video Demo Approval — Slice 1", () => {
       { params: { id: seed.campaignKolId } }
     );
     expect(res.status).toBe(400);
+  });
+
+  // ─── Slice 2: REQUEST_REVISION + comments ────────────────────────────
+
+  it("REQUEST_REVISION sets status NEEDS_REVISION + saves comment", async () => {
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const submitRes = await submitPOST(
+      jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }),
+      { params: { id: seed.campaignKolId } }
+    );
+    const videoId = (await submitRes.json()).video.id;
+
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.managerId, "MANAGER") as never);
+    const res = await reviewPOST(
+      jsonReq("http://t", {
+        action: "REQUEST_REVISION",
+        comment: "Ánh sáng yếu, quay lại",
+      }),
+      { params: { id: videoId } }
+    );
+    expect(res.status).toBe(200);
+
+    const video = await prisma.video.findUniqueOrThrow({ where: { id: videoId } });
+    expect(video.demoStatus).toBe("NEEDS_REVISION");
+
+    const sub = await prisma.videoSubmission.findUniqueOrThrow({
+      where: { id: video.currentSubmissionId! },
+      include: { comments: true },
+    });
+    expect(sub.status).toBe("NEEDS_REVISION");
+    expect(sub.comments).toHaveLength(1);
+    expect(sub.comments[0].body).toBe("Ánh sáng yếu, quay lại");
+    expect(sub.comments[0].authorId).toBe(seed.managerId);
+  });
+
+  it("After NEEDS_REVISION, staff submits v2 → version=2 + new currentSubmission", async () => {
+    // v1 + reject
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const r1 = await submitPOST(jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }), {
+      params: { id: seed.campaignKolId },
+    });
+    const videoId = (await r1.json()).video.id;
+
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.managerId, "MANAGER") as never);
+    await reviewPOST(jsonReq("http://t", { action: "REQUEST_REVISION" }), {
+      params: { id: videoId },
+    });
+
+    // v2
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const r2 = await submitPOST(
+      jsonReq("http://t", { driveUrl: "https://drive.google.com/file/d/xyz/view" }),
+      { params: { id: seed.campaignKolId } }
+    );
+    expect(r2.status).toBe(201);
+    const body2 = await r2.json();
+    expect(body2.submission.version).toBe(2);
+
+    const video = await prisma.video.findUniqueOrThrow({ where: { id: videoId } });
+    expect(video.demoStatus).toBe("DEMO_PENDING");
+    expect(video.currentSubmissionId).toBe(body2.submission.id);
+  });
+
+  it("Comment on CURRENT submission OK, on OLD submission rejected (400)", async () => {
+    // v1
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const r1 = await submitPOST(jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }), {
+      params: { id: seed.campaignKolId },
+    });
+    const r1Body = await r1.json();
+    const v1SubmissionId = r1Body.submission.id;
+    const videoId = r1Body.video.id;
+
+    // Comment trên v1 (current) → OK
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const c1 = await commentPOST(jsonReq("http://t", { body: "Đã gửi xong" }), {
+      params: { id: v1SubmissionId },
+    });
+    expect(c1.status).toBe(201);
+
+    // Manager request revision → v1 không còn là current
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.managerId, "MANAGER") as never);
+    await reviewPOST(jsonReq("http://t", { action: "REQUEST_REVISION" }), {
+      params: { id: videoId },
+    });
+
+    // Staff submit v2 → v1 trở thành old (currentOf bị move sang v2)
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    await submitPOST(
+      jsonReq("http://t", { driveUrl: "https://drive.google.com/file/d/v2/view" }),
+      { params: { id: seed.campaignKolId } }
+    );
+
+    // Comment trên v1 (giờ là old) → 400
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const cOld = await commentPOST(jsonReq("http://t", { body: "comment trên old" }), {
+      params: { id: v1SubmissionId },
+    });
+    expect(cOld.status).toBe(400);
+
+    // GET comments của v1 (old) vẫn xem được
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const list = await commentGET(jsonReq("http://t", {}), { params: { id: v1SubmissionId } });
+    expect(list.status).toBe(200);
+    const listBody = await list.json();
+    expect(listBody).toHaveLength(1); // chỉ có comment "Đã gửi xong" lúc đầu
+  });
+
+  // ─── Slice 3: history endpoint ───────────────────────────────────────
+
+  it("GET /api/videos/[id]/submissions returns all versions desc", async () => {
+    // v1
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const r1 = await submitPOST(jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }), {
+      params: { id: seed.campaignKolId },
+    });
+    const videoId = (await r1.json()).video.id;
+
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.managerId, "MANAGER") as never);
+    await reviewPOST(jsonReq("http://t", { action: "REQUEST_REVISION" }), {
+      params: { id: videoId },
+    });
+
+    // v2
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    await submitPOST(
+      jsonReq("http://t", { driveUrl: "https://drive.google.com/file/d/v2/view" }),
+      { params: { id: seed.campaignKolId } }
+    );
+
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const res = await historyGET(jsonReq("http://t", {}), { params: { id: videoId } });
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.submissions).toHaveLength(2);
+    expect(body.submissions[0].version).toBe(2); // newest first
+    expect(body.submissions[1].version).toBe(1);
+  });
+
+  // ─── Slice 4: notification side-effect ───────────────────────────────
+
+  it("submit creates VIDEO_DEMO_PENDING notification for managers", async () => {
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    await submitPOST(jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }), {
+      params: { id: seed.campaignKolId },
+    });
+
+    const noti = await prisma.notification.findFirst({
+      where: { recipientId: seed.managerId, type: "VIDEO_DEMO_PENDING" },
+    });
+    expect(noti).not.toBeNull();
+    expect(noti!.link).toBe("/videos-pending");
+  });
+
+  it("approve creates VIDEO_DEMO_APPROVED notification for submitter", async () => {
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.staffId, "STAFF") as never);
+    const r = await submitPOST(jsonReq("http://t", { driveUrl: VALID_DRIVE_URL }), {
+      params: { id: seed.campaignKolId },
+    });
+    const videoId = (await r.json()).video.id;
+
+    vi.mocked(getServerSession).mockResolvedValueOnce(sessionFor(seed.managerId, "MANAGER") as never);
+    await reviewPOST(jsonReq("http://t", { action: "APPROVE" }), {
+      params: { id: videoId },
+    });
+
+    const noti = await prisma.notification.findFirst({
+      where: { recipientId: seed.staffId, type: "VIDEO_DEMO_APPROVED" },
+    });
+    expect(noti).not.toBeNull();
   });
 });

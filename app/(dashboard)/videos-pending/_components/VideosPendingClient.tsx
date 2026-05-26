@@ -11,10 +11,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { formatDateTime } from "@/lib/format";
+import { CommentThread } from "@/components/video/CommentThread";
+import { SubmissionHistoryAccordion } from "@/components/video/SubmissionHistoryAccordion";
 
 type Row = {
   videoId: string;
+  currentSubmissionId: string;
   kolUsername: string;
   campaignId: string;
   campaignName: string;
@@ -24,27 +28,66 @@ type Row = {
   submittedByName: string;
 };
 
+type Mode = null | "review" | "revision";
+
 export function VideosPendingClient({ rows }: { rows: Row[] }) {
   const router = useRouter();
   const [reviewing, setReviewing] = useState<Row | null>(null);
-  const [approving, setApproving] = useState(false);
+  const [mode, setMode] = useState<Mode>(null);
+  const [busy, setBusy] = useState(false);
+  const [revisionComment, setRevisionComment] = useState("");
+
+  function openReview(r: Row) {
+    setReviewing(r);
+    setMode("review");
+    setRevisionComment("");
+  }
+
+  function close() {
+    setReviewing(null);
+    setMode(null);
+    setRevisionComment("");
+  }
 
   async function handleApprove() {
     if (!reviewing) return;
-    setApproving(true);
+    setBusy(true);
     const res = await fetch(`/api/videos/${reviewing.videoId}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "APPROVE" }),
     });
-    setApproving(false);
+    setBusy(false);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       toast.error(data?.error ?? "Duyệt thất bại");
       return;
     }
     toast.success(`Đã duyệt video @${reviewing.kolUsername}`);
-    setReviewing(null);
+    close();
+    router.refresh();
+  }
+
+  async function handleRequestRevision() {
+    if (!reviewing) return;
+    const comment = revisionComment.trim();
+    setBusy(true);
+    const res = await fetch(`/api/videos/${reviewing.videoId}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "REQUEST_REVISION",
+        ...(comment ? { comment } : {}),
+      }),
+    });
+    setBusy(false);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data?.error ?? "Gửi yêu cầu sửa thất bại");
+      return;
+    }
+    toast.success(`Đã yêu cầu @${reviewing.kolUsername} sửa demo`);
+    close();
     router.refresh();
   }
 
@@ -92,7 +135,7 @@ export function VideosPendingClient({ rows }: { rows: Row[] }) {
                   <td className="px-3 py-2.5 text-xs">{formatDateTime(r.submittedAt)}</td>
                   <td className="px-3 py-2.5 text-xs">{r.submittedByName}</td>
                   <td className="px-3 py-2.5 text-right">
-                    <Button size="sm" onClick={() => setReviewing(r)}>
+                    <Button size="sm" onClick={() => openReview(r)}>
                       Review
                     </Button>
                   </td>
@@ -103,44 +146,102 @@ export function VideosPendingClient({ rows }: { rows: Row[] }) {
         </div>
       )}
 
-      <Dialog open={!!reviewing} onOpenChange={(o) => !o && setReviewing(null)}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={!!reviewing} onOpenChange={(o) => !o && close()}>
+        <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Duyệt video demo</DialogTitle>
+            <DialogTitle>
+              {mode === "revision" ? "Yêu cầu sửa demo" : "Duyệt video demo"}
+            </DialogTitle>
           </DialogHeader>
           {reviewing ? (
-            <div className="space-y-3 text-sm">
-              <Row label="KOL">@{reviewing.kolUsername}</Row>
-              <Row label="Chiến dịch">{reviewing.campaignName}</Row>
-              <Row label="Version">v{reviewing.version}</Row>
-              <Row label="Người submit">{reviewing.submittedByName}</Row>
-              <Row label="Submit lúc">{formatDateTime(reviewing.submittedAt)}</Row>
-              <Row label="Link demo">
-                <a
-                  href={reviewing.driveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline break-all"
-                >
-                  {reviewing.driveUrl} ↗
-                </a>
-              </Row>
-              <div className="rounded border border-dashed border-border p-4 text-xs text-muted-foreground">
-                Xem video trên Drive ở tab mới, sau đó quay lại đây để duyệt.
+            <div className="space-y-4 text-sm">
+              <div className="space-y-2">
+                <InfoRow label="KOL">@{reviewing.kolUsername}</InfoRow>
+                <InfoRow label="Chiến dịch">{reviewing.campaignName}</InfoRow>
+                <InfoRow label="Version">v{reviewing.version}</InfoRow>
+                <InfoRow label="Người submit">{reviewing.submittedByName}</InfoRow>
+                <InfoRow label="Submit lúc">{formatDateTime(reviewing.submittedAt)}</InfoRow>
+                <InfoRow label="Link demo">
+                  <a
+                    href={reviewing.driveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline break-all"
+                  >
+                    {reviewing.driveUrl} ↗
+                  </a>
+                </InfoRow>
               </div>
+
+              {mode === "review" ? (
+                <>
+                  <div className="border-t border-border pt-3">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                      Bình luận
+                    </div>
+                    <CommentThread
+                      submissionId={reviewing.currentSubmissionId}
+                      canPost
+                    />
+                  </div>
+                  <div className="border-t border-border pt-3">
+                    <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                      Lịch sử version
+                    </div>
+                    <SubmissionHistoryAccordion
+                      videoId={reviewing.videoId}
+                      excludeSubmissionId={reviewing.currentSubmissionId}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="border-t border-border pt-3 space-y-2">
+                  <Label htmlFor="revisionComment">
+                    Lý do yêu cầu sửa (sẽ lưu thành comment)
+                  </Label>
+                  <textarea
+                    id="revisionComment"
+                    value={revisionComment}
+                    onChange={(e) => setRevisionComment(e.target.value)}
+                    placeholder="Ví dụ: thiếu shot mở hộp, ánh sáng yếu, chốt sai giá..."
+                    className="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    autoFocus
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Comment optional. Có thể bỏ trống nếu chỉ muốn đánh dấu cần sửa.
+                  </p>
+                </div>
+              )}
             </div>
           ) : null}
           <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              disabled
-              title="Tính năng sắp có (Slice 2)"
-            >
-              Yêu cầu sửa
-            </Button>
-            <Button onClick={handleApprove} disabled={approving}>
-              {approving ? "Đang duyệt..." : "Approve"}
-            </Button>
+            {mode === "review" ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setMode("revision")}
+                  disabled={busy}
+                >
+                  Yêu cầu sửa
+                </Button>
+                <Button onClick={handleApprove} disabled={busy}>
+                  {busy ? "Đang duyệt..." : "Approve"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setMode("review")}
+                  disabled={busy}
+                >
+                  Quay lại
+                </Button>
+                <Button onClick={handleRequestRevision} disabled={busy}>
+                  {busy ? "Đang gửi..." : "Gửi yêu cầu sửa"}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -148,7 +249,13 @@ export function VideosPendingClient({ rows }: { rows: Row[] }) {
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function InfoRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex gap-3">
       <div className="w-28 shrink-0 text-xs uppercase tracking-wider text-muted-foreground">

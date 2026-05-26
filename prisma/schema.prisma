@@ -30,6 +30,7 @@ model User {
   notifications  Notification[]
   submittedVideos VideoSubmission[] @relation("VideoSubmittedBy")
   reviewedVideos  VideoSubmission[] @relation("VideoReviewedBy")
+  submissionComments SubmissionComment[]
 }
 
 enum Role {
@@ -439,6 +440,7 @@ model VideoSubmission {
   reviewedAt   DateTime?
 
   currentOf Video? @relation("VideoCurrentSubmission")
+  comments  SubmissionComment[]
 
   @@unique([videoId, version])
   @@index([videoId, version])
@@ -449,4 +451,20 @@ enum SubmissionStatus {
   DEMO_PENDING
   APPROVED
   NEEDS_REVISION
+}
+
+// Comment thread thuộc về 1 VideoSubmission cụ thể (không phải toàn Video).
+// Sau khi MANAGER REQUEST_REVISION, comment được lưu để Booking Staff xem
+// trước khi submit version mới. Comment trên version cũ là read-only.
+model SubmissionComment {
+  id           String          @id @default(cuid())
+  submission   VideoSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submissionId String
+  author       User            @relation(fields: [authorId], references: [id])
+  authorId     String
+  body         String
+  createdAt    DateTime        @default(now())
+
+  @@index([submissionId, createdAt])
+  @@index([authorId])
 }
