@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { formatNumber, formatVnd } from "@/lib/format";
+import { normalizeUsername } from "@/lib/normalize";
 
 type Row = {
   username: string;
@@ -50,7 +51,7 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
   const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalizeUsername(query);
     const res = q
       ? rows.filter((r) => r.username.toLowerCase().includes(q))
       : [...rows];
@@ -147,7 +148,9 @@ export function RevenueTable({ rows }: { rows: Row[] }) {
             {pageRows.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
-                  {query ? `Không tìm thấy KOL khớp "${query}"` : "Chưa có dữ liệu"}
+                  {query
+                    ? `Không tìm thấy KOL khớp "@${normalizeUsername(query)}"`
+                    : "Chưa có dữ liệu"}
                 </td>
               </tr>
             ) : (

@@ -11,7 +11,9 @@ export type AuditEntity =
   | "VideoLink"
   | "ExcelImport"
   | "User"
-  | "CastCost";
+  | "CastCost"
+  | "Video"
+  | "VideoSubmission";
 
 type LogParams = {
   user: { id: string; email: string; name: string };
