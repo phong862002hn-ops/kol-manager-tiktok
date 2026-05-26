@@ -14,15 +14,19 @@ export default async function DashboardLayout({
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const pendingCount =
+  const [pendingCount, pendingVideosCount] =
     session.user.role === "MANAGER"
-      ? await prisma.castCost.count({ where: { status: "PENDING" } })
-      : 0;
+      ? await Promise.all([
+          prisma.castCost.count({ where: { status: "PENDING" } }),
+          prisma.video.count({ where: { demoStatus: "DEMO_PENDING" } }),
+        ])
+      : [0, 0];
 
   return (
     <div className="flex min-h-screen">
       <Sidebar
         pendingApprovals={pendingCount}
+        pendingVideos={pendingVideosCount}
         userRole={session.user.role}
         userName={session.user.name ?? ""}
         userEmail={session.user.email ?? ""}

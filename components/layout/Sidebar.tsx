@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Upload,
   CheckCircle2,
+  Video,
   UserCog,
   Tag,
   History,
@@ -24,7 +25,7 @@ type NavItem = {
   label: string;
   Icon: LucideIcon;
   managerOnly?: boolean;
-  badgeKey?: "pendingApprovals";
+  badgeKey?: "pendingApprovals" | "pendingVideos";
 };
 
 type NavSection = {
@@ -58,6 +59,13 @@ const sections: NavSection[] = [
         managerOnly: true,
         badgeKey: "pendingApprovals",
       },
+      {
+        href: "/videos-pending",
+        label: "Video cần duyệt",
+        Icon: Video,
+        managerOnly: true,
+        badgeKey: "pendingVideos",
+      },
       { href: "/users", label: "Nhân sự", Icon: UserCog, managerOnly: true },
       { href: "/tags", label: "Tag", Icon: Tag, managerOnly: true },
       { href: "/audit", label: "Lịch sử", Icon: History, managerOnly: true },
@@ -67,18 +75,20 @@ const sections: NavSection[] = [
 
 export function Sidebar({
   pendingApprovals = 0,
+  pendingVideos = 0,
   userRole,
   userName,
   userEmail,
 }: {
   pendingApprovals?: number;
+  pendingVideos?: number;
   userRole: "STAFF" | "MANAGER";
   userName: string;
   userEmail: string;
 }) {
   const pathname = usePathname();
   const role = userRole;
-  const badges: Record<string, number> = { pendingApprovals };
+  const badges: Record<string, number> = { pendingApprovals, pendingVideos };
 
   return (
     <aside className="w-60 shrink-0 bg-background border-r border-border flex flex-col h-screen sticky top-0 text-[13px]">

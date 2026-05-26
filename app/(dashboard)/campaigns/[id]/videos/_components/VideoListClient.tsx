@@ -29,9 +29,11 @@ type Row = {
 export function VideoListClient({
   rows,
   kpi,
+  embedded = false,
 }: {
   rows: Row[];
   kpi: { count: number; gmv: number; avgGmv: number };
+  embedded?: boolean;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Row | null>(null);
@@ -69,7 +71,12 @@ export function VideoListClient({
   }
 
   return (
-    <div className="p-8">
+    <div className={embedded ? "" : "p-8"}>
+      {embedded ? (
+        <h2 className="text-lg font-semibold text-foreground mb-3">
+          Video TikTok đã đăng
+        </h2>
+      ) : null}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Kpi label="Tổng video" value={formatNumber(kpi.count)} />
         <Kpi label="Tổng GMV" value={formatVnd(kpi.gmv)} />

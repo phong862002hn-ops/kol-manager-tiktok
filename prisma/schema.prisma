@@ -28,6 +28,8 @@ model User {
   auditLogs      AuditLog[]
   comments       KolComment[]
   notifications  Notification[]
+  submittedVideos VideoSubmission[] @relation("VideoSubmittedBy")
+  reviewedVideos  VideoSubmission[] @relation("VideoReviewedBy")
 }
 
 enum Role {
@@ -87,6 +89,7 @@ model CampaignKol {
 
   castCost CastCost?
   comments KolComment[]
+  video    Video?
 
   note      String?
   createdAt DateTime  @default(now())
@@ -388,4 +391,62 @@ model KolComment {
   @@index([campaignKolId, createdAt])
   @@index([kolUsername, createdAt])
   @@index([userId])
+}
+
+// Demo Video — 1-1 với CampaignKol. Lưu trạng thái duyệt demo của KOL trong campaign.
+// Mỗi Video có nhiều VideoSubmission (mỗi lần Booking Staff paste link Drive = 1 version).
+model Video {
+  id            String          @id @default(cuid())
+  campaignKol   CampaignKol     @relation(fields: [campaignKolId], references: [id], onDelete: Cascade)
+  campaignKolId String          @unique
+  demoStatus    VideoDemoStatus @default(NOT_SUBMITTED)
+
+  // FK đến submission hiện tại (mới nhất). Nullable vì status NOT_SUBMITTED chưa có submission nào.
+  // onDelete: NoAction để tránh cascade vòng giữa Video và VideoSubmission.
+  currentSubmission   VideoSubmission? @relation("VideoCurrentSubmission", fields: [currentSubmissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  currentSubmissionId String?          @unique
+
+  submissions VideoSubmission[] @relation("VideoSubmissions")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([demoStatus])
+}
+
+enum VideoDemoStatus {
+  NOT_SUBMITTED
+  DEMO_PENDING
+  APPROVED
+  NEEDS_REVISION
+  PUBLISHED
+}
+
+model VideoSubmission {
+  id       String @id @default(cuid())
+  video    Video  @relation("VideoSubmissions", fields: [videoId], references: [id], onDelete: Cascade)
+  videoId  String
+  version  Int
+  driveUrl String
+
+  status      SubmissionStatus @default(DEMO_PENDING)
+  submittedBy User             @relation("VideoSubmittedBy", fields: [submittedById], references: [id])
+  submittedById String
+  submittedAt DateTime         @default(now())
+
+  reviewedBy   User?     @relation("VideoReviewedBy", fields: [reviewedById], references: [id])
+  reviewedById String?
+  reviewedAt   DateTime?
+
+  currentOf Video? @relation("VideoCurrentSubmission")
+
+  @@unique([videoId, version])
+  @@index([videoId, version])
+  @@index([status])
+}
+
+enum SubmissionStatus {
+  DEMO_PENDING
+  APPROVED
+  NEEDS_REVISION
 }
